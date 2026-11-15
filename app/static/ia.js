@@ -129,7 +129,7 @@ const OUTILS = [
      return {genere_le: D.genere_le, marche: m, note: "masi = capitalisation boursière totale (milliards MAD) ; le MASI officiel n'est pas disponible",
        plus_fortes_baisses: ok.slice(0, 8).map(court), plus_fortes_hausses: ok.slice(-8).reverse().map(court),
        zone_achat_liquides: V.filter(f => f.strategie?.zone && f.liquide).map(f => ({...court(f), strategie: grille(f)})),
-       bilan_regles: D.bilan_reconstitue, non_diagnostiquees: (D.echecs || []).map(e => e.nom)};
+       bilan_regles: (({dernieres, ...b}) => b)(D.bilan_reconstitue || {}), non_diagnostiquees: (D.echecs || []).map(e => e.nom)};
    }},
   {name: "chercher_valeur", label: {fr: "fiche valeur", ar: "بطاقة السهم"},
    description: "Fiche complète d'une valeur (nom ou symbole : MNG, MANAGEM, ATW, IAM…) : cours, variations, plus haut/bas 52 semaines, RSI, moyennes mobiles, volatilité, liquidité, signaux, règles actives, historique de la stratégie de l'utilisateur, 60 derniers cours.",
@@ -148,7 +148,7 @@ const OUTILS = [
    description: "Liste filtrée. filtre : baisse (plus fortes baisses du jour), hausse, baisse_5j, zone (zone d'achat de la stratégie), signaux_achat, signaux_vente, pres_plus_bas, toutes.",
    params: {type: "object", properties: {filtre: {type: "string", enum: ["baisse", "hausse", "baisse_5j", "zone", "signaux_achat", "signaux_vente", "pres_plus_bas", "toutes"]},
      liquides_seulement: {type: "boolean"}, limite: {type: "integer"}}, required: ["filtre"]},
-   run({filtre, liquides_seulement = true, limite = 12}) {
+   run({filtre, liquides_seulement = true, limite = 10}) {
      const l = V.filter(f => !liquides_seulement || f.liquide);
      const par = k => (a, b) => (a[k] ?? 1e9) - (b[k] ?? 1e9);
      const ev = f => grille(f)?.resultat_net_moyen_pct ?? -99;
@@ -412,9 +412,12 @@ Réglages : capital ${R.capital} MAD sur ${R.lignes} lignes au plus, courtage ${
 
 /* ---------- Appels aux API ---------- */
 class ErrIA extends Error { constructor(type, msg) { super(msg || type); this.type = type; } }
-async function appel(url, init) {
+async function appel(url, init, delaiMs = 45000) {
   let r;
-  try { r = await fetch(url, init); } catch (e) { throw new ErrIA("reseau"); }
+  const ac = new AbortController(), minuteur = setTimeout(() => ac.abort(), delaiMs);
+  try { r = await fetch(url, {...init, signal: ac.signal}); }
+  catch (e) { throw new ErrIA(ac.signal.aborted ? "delai" : "reseau", ac.signal.aborted ? "délai dépassé" : "réseau"); }
+  finally { clearTimeout(minuteur); }
   let j = null; try { j = await r.json(); } catch (e) {}
   if (r.ok) return j;
   const m = j?.error?.message || ("HTTP " + r.status);
@@ -441,25 +444,52 @@ async function modeleGemini(forcer) {
 }
 const schemaGemini = OUTILS.map(o => o.params ? {name: o.name, description: o.description, parameters: o.params} : {name: o.name, description: o.description});
 
+/* Réflexion courte : les modèles récents « réfléchissent » longtemps par défaut,
+   ce qui rend les réponses lentes et peut épuiser la limite de texte avant la réponse. */
+function reflexionCourte(modele) {
+  if (st.get("gsansreflexion", false)) return undefined;
+  return /gemini-2\./.test(modele) ? {thinkingBudget: 0} : {thinkingLevel: "low"};
+}
+async function genererGemini(modele, contents, avecOutils) {
+  const gc = {temperature: 0.3, maxOutputTokens: 8192};
+  const rf = reflexionCourte(modele); if (rf) gc.thinkingConfig = rf;
+  const corps = {systemInstruction: {parts: [{text: consignes()}]}, contents, generationConfig: gc};
+  if (avecOutils) corps.tools = [{functionDeclarations: schemaGemini}];
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modele}:generateContent`;
+  const init = b => ({method: "POST", headers: {"Content-Type": "application/json", "x-goog-api-key": CLES.gemini}, body: JSON.stringify(b)});
+  try { return await appel(url, init(corps)); }
+  catch (e) {
+    if (rf && e.type === "autre" && /think/i.test(e.message)) {     // ce modèle refuse le réglage : on le retire
+      st.set("gsansreflexion", true); delete gc.thinkingConfig; return await appel(url, init(corps));
+    }
+    throw e;
+  }
+}
+const texteGemini = c => (c?.parts || []).filter(p => p.text && !p.thought).map(p => p.text).join("").trim();
 async function viaGemini(hist, surOutil) {
   let modele = await modeleGemini(false);
   const contents = hist.map(m => ({role: m.role === "assistant" ? "model" : "user", parts: [{text: m.content}]}));
-  for (let tour = 0; tour < 7; tour++) {
+  for (let tour = 0; tour < 6; tour++) {
     let j;
-    const corps = JSON.stringify({systemInstruction: {parts: [{text: consignes()}]}, contents,
-      tools: [{functionDeclarations: schemaGemini}], generationConfig: {temperature: 0.3, maxOutputTokens: 4096}});
-    try {
-      j = await appel(`https://generativelanguage.googleapis.com/v1beta/models/${modele}:generateContent`,
-        {method: "POST", headers: {"Content-Type": "application/json", "x-goog-api-key": CLES.gemini}, body: corps});
-    } catch (e) {
+    try { j = await genererGemini(modele, contents, true); }
+    catch (e) {
       if (e.type === "modele" && tour === 0) { modele = await modeleGemini(true); tour--; continue; }
       throw e;
     }
-    const c = j?.candidates?.[0]?.content;
-    if (!c || !c.parts) throw new ErrIA("autre", j?.promptFeedback?.blockReason || "réponse vide");
+    const cand = j?.candidates?.[0], c = cand?.content;
+    if (!c || !c.parts) throw new ErrIA("vide", j?.promptFeedback?.blockReason || cand?.finishReason || "réponse vide");
     contents.push(c);
     const appels = c.parts.filter(p => p.functionCall);
-    if (!appels.length) return c.parts.filter(p => p.text && !p.thought).map(p => p.text).join("").trim();
+    if (!appels.length) {
+      const t = texteGemini(c);
+      if (t) return t;
+      // Réponse vide (réflexion trop longue, texte coupé) : on redemande une réponse directe, sans outil.
+      contents.push({role: "user", parts: [{text: LANG === "ar" ? "أجب الآن مباشرة وباختصار، دون استدعاء أي أداة." : "Réponds maintenant directement et brièvement, sans appeler d'outil."}]});
+      const j2 = await genererGemini(modele, contents, false);
+      const t2 = texteGemini(j2?.candidates?.[0]?.content);
+      if (t2) return t2;
+      throw new ErrIA("vide", j2?.candidates?.[0]?.finishReason || "réponse vide");
+    }
     const reponses = appels.map(p => {
       surOutil(p.functionCall.name);
       const fr = {name: p.functionCall.name, response: {resultat: executer(p.functionCall.name, p.functionCall.args)}};
@@ -497,7 +527,7 @@ async function repondre(hist, surOutil) {
     if (!g) throw new ErrIA("sanscle");
     try { return {texte: await viaGemini(hist, surOutil), par: "gemini"}; }
     catch (e) {
-      if (MODE === "auto" && a && (e.type === "quota" || e.type === "reseau" || e.type === "modele")) return {texte: await viaClaude(hist, surOutil), par: "claude", bascule: true};
+      if (MODE === "auto" && a && (e.type === "quota" || e.type === "reseau" || e.type === "modele" || e.type === "delai" || e.type === "vide")) return {texte: await viaClaude(hist, surOutil), par: "claude", bascule: true};
       if (e.type === "quota" && !a) throw new ErrIA("quotaSansClaude");
       throw Object.assign(e, {fournisseur: "Gemini"});
     }
@@ -604,8 +634,11 @@ async function demander(texte, local = null) {
   bulle("user", echap(texte));
   const rep = bulle("ai", `<span class="att">${x("reflexion")}</span>`); enBas();
   const lab = n => (OUTILS.find(o => o.name === n)?.label?.[LANG]) || n;
+  let etat = x("reflexion"); const t0 = Date.now();
+  const maj = () => { rep.innerHTML = `<span class="att">${echap(etat)} <span class="num">${Math.round((Date.now() - t0) / 1000)} s</span></span>`; };
+  const chrono = setInterval(maj, 1000);
   try {
-    const r = await repondre(FIL.slice(-14), n => { rep.innerHTML = `<span class="att">${echap(x("outil", lab(n)))}</span>`; enBas(); });
+    const r = await repondre(FIL.slice(-14), n => { etat = x("outil", lab(n)); maj(); enBas(); });
     const txt = r.texte || "…";
     rep.innerHTML = (r.bascule ? `<p class="ia-note">${x("bascule")}</p>` : "") + md(txt) + etiquette(r.par);
     FIL.push({role: "assistant", content: txt, par: r.par}); st.set("fil", FIL.slice(-30));
@@ -615,7 +648,9 @@ async function demander(texte, local = null) {
     rep.classList.add("err");
     const fz = e.fournisseur || (MODE === "anthropic" || !CLES.gemini ? "Claude" : "Gemini");
     const m = {sanscle: x("sansCle"), quotaSansClaude: x("quotaSansClaude"), cle: x("cleKo", fz), credit: x("creditKo"), reseau: x("reseau"),
-      quota: x("erreur", "quota")}[e.type] || x("erreur", e.message);
+      quota: x("erreur", "quota"),
+      delai: LANG === "ar" ? "لم يجب Gemini في الوقت المناسب. أعد المحاولة أو اطرح سؤالا أقصر." : "Gemini n'a pas répondu à temps. Réessayez ou posez une question plus courte.",
+      vide: LANG === "ar" ? "أعاد Gemini جوابا فارغا. أعد المحاولة." : "Gemini a renvoyé une réponse vide. Réessayez."}[e.type] || x("erreur", e.message);
     if (local && e.type !== "sanscle") {
       const txt = calculLocal(local);
       if (txt) { rep.classList.remove("err"); rep.innerHTML = `<p class="ia-note">${echap(l("secours"))} (${echap(m)})</p>` + md(txt) + etiquette("app");
@@ -623,7 +658,7 @@ async function demander(texte, local = null) {
     }
     rep.innerHTML = `<p>${echap(m)}</p><p class="ia-note">${x("gerer")}</p>`;
     if (e.type === "sanscle") panneauAccueil();
-  } finally { busy = false; $i("ia-env").disabled = false; enBas(); }
+  } finally { clearInterval(chrono); busy = false; $i("ia-env").disabled = false; enBas(); }
 }
 function rendreChipsRaz() {
   if (!$i("ia-chips").querySelector("[data-raz]")) $i("ia-chips").insertAdjacentHTML("beforeend", `<button class="ia-chip" type="button" data-raz="1">${x("raz")}</button>`);
@@ -632,7 +667,16 @@ function rendreChipsRaz() {
 /* Test des clés : renvoie une liste de {ok, txt}. */
 async function tester() {
   const res = [];
-  if (CLES.gemini) { try { res.push({ok: true, txt: x("testOk", "Gemini (" + await modeleGemini(true) + ")")}); } catch (e) { res.push({ok: false, txt: x("testKo", "Gemini", e.message.slice(0, 120))}); } }
+  if (CLES.gemini) {
+    try {
+      st.del("gsansreflexion");
+      const m = await modeleGemini(true), t0 = Date.now();
+      const j = await genererGemini(m, [{role: "user", parts: [{text: "Réponds seulement : OK"}]}], false);
+      const t = texteGemini(j?.candidates?.[0]?.content);
+      if (!t) throw new ErrIA("vide", j?.candidates?.[0]?.finishReason || "réponse vide");
+      res.push({ok: true, txt: x("testOk", `Gemini (${m}, ${((Date.now() - t0) / 1000).toFixed(1)} s)`)});
+    } catch (e) { res.push({ok: false, txt: x("testKo", "Gemini", (e.type ? e.type + " · " : "") + e.message.slice(0, 160))}); }
+  }
   if (CLES.anthropic) {
     try { await appel("https://api.anthropic.com/v1/messages", {method: "POST", headers: {"Content-Type": "application/json", "x-api-key": CLES.anthropic,
       "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true"},

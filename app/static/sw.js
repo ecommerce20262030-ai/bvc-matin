@@ -1,6 +1,6 @@
 // BVC Matin - fonctionnement hors ligne.
 // Réseau d'abord (pour avoir les cours du jour), copie locale si pas de connexion.
-const CACHE = "bvc-matin-v7";
+const CACHE = "bvc-matin-v8";
 self.addEventListener("install", e => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(
   caches.keys().then(k => Promise.all(k.filter(n => n !== CACHE).map(n => caches.delete(n)))).then(() => self.clients.claim())
