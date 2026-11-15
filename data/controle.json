@@ -1,0 +1,44 @@
+{
+ "date": "2026-11-15T23:44+00:00",
+ "etapes": {
+  "accueil": {
+   "ok": true,
+   "extrait": "séance 2026-11-13 · demo=false · 78/81 valeurs · 5 propositions"
+  },
+  "fiche": {
+   "ok": true,
+   "extrait": "BVC Matin\nSéance du vendredi 13 novembre 2026\nع\n📲 Installer BVC Matin sur ce téléphone\nL'application s'ouvrira en plein écran depuis son icône, comme une application normale.\nOuvre cette page dans Chrome\nTouche le menu ⋮ en haut à droite\nTouche « Installer l'application » ou « Ajouter à l'écran d'accueil », puis confirme\nPlus tard\nCapitalisation · Mds MAD\n1 013,37\n-0,40 %\nDepuis le 1er janv. -2,47 %\n▲ 22 en hausse\n■ 4 stables\n▼ 38 en baisse\nPropositions du jour\nModifier\nRevente à +2,00 % · sortie à -3,00 % · 5 séances · 10 000 MAD par valeur\nAucune valeur n'est favorable aujourd'hui avec vos r"
+  },
+  "ia_analyser_valeur": {
+   "ok": true,
+   "extrait": "BANK OF AFRICA (BOA) : cours 194,90 MAD (-0,05 % sur la séance, -0,31 % sur 5 séances, -15,26 % sur 1 an).\n\nPlus haut / plus bas 52 sem. : 235,80 / 178,00 (à +9,49 % du plus bas)\nRSI 14 : 64 ; moyenne 50 j : 188,91 ; moyenne 200 j : 199,28\nLiquidité : 6 530 656 MAD échangés par jour en moyenne (liquide)\nDans la zone d'achat de votre méthode aujourd'hui.\nVotre méthode sur cette valeur (~3 ans) : 37 opérations, objectif atteint 59 %, net moyen -1,10 %\nCalcul de l'application · sans IA"
+  },
+  "ia_resume_marche": {
+   "ok": true,
+   "extrait": "Séance du 2026-11-13\n\n22 valeurs en hausse, 38 en baisse, 4 stables.\n\nCapitalisation totale : 1 013,37 Mds MAD (-0,40 % sur la séance).\n\nPlus fortes baisses (valeurs liquides) :\n\nATLANTASANAD : -4,96 %\nVICENNE : -3,73 %\nDELTA HOLDING : -3,04 %\nSONASID : -2,54 %\nBMCI : -2,31 %\n\nPlus fortes hausses (valeurs liquides) :\n\nCIMENTS DU MAROC : +1,92 %\nJET CONTRACTORS : +1,69 %\nCOSUMAR : +1,68 %\nHPS : +1,61 %\nBCP : +1,12 %\n\nZone d'achat de votre méthode : 22 valeur(s) liquide(s), dont 0 avec un résultat net moyen positif sur ~3 ans.\n\nCalcul de l'application · sans IA"
+  },
+  "ia_portefeuille": {
+   "ok": true,
+   "extrait": "Aucune position enregistrée. Ajoutez vos achats dans l'onglet Portefeuille, je pourrai alors les surveiller.\n\nCalcul de l'application · sans IA"
+  },
+  "ia_strategie": {
+   "ok": true,
+   "extrait": "Votre méthode : revente à +2 %, sortie à -3 %, au plus 5 séances. Résultats sur ~3 ans, frais inclus :\n\n21 valeur(s) liquide(s) sont en zone d'achat aujourd'hui ; 0 ont un résultat net moyen positif. Moyenne : -1,70 % par opération.\nSur l'ensemble des 42 valeurs liquides testées : 0 positives, moyenne -1,78 % par opération.\n\nMeilleurs historiques parmi la zone d'achat :\n\nBANK OF AFRICA : -1,10 % (37 op., 59 %)\nTOTALENERGIES MARKETING MAROC : -1,13 % (42 op., 60 %)\nTAQA MOROCCO : -1,26 % (38 op., 55 %)\n\nFrais aller-retour ≈ 1,55 % : il faut au moins +1,55 % de hausse pour ne rien perdre.\n\nConcl"
+  },
+  "ia_baisses": {
+   "ok": true,
+   "extrait": "Plus fortes baisses de la séance (valeurs liquides) :\n\nATLANTASANAD : -4,96 %, cours 113,10, à +2,82 % de son plus bas 52 sem., RSI 41\nVICENNE : -3,73 %, cours 315,00, à +10,92 % de son plus bas 52 sem., RSI 55\nDELTA HOLDING : -3,04 %, cours 48,50, à +12,53 % de son plus bas 52 sem., RSI 51\nSONASID : -2,54 %, cours 1 840,00, à +18,63 % de son plus bas 52 sem., RSI 61\nBMCI : -2,31 %, cours 550,00, à +5,77 % de son plus bas 52 sem., RSI 44\nCDM : -2,06 %, cours 950,00, à +5,56 % de son plus bas 52 sem., RSI 54\nCFG BANK : -1,98 %, cours 198,00, à +8,20 % de son plus bas 52 sem., RSI 54\nSTOKVIS NOR"
+  },
+  "ia_verifier_ordre": {
+   "ok": true,
+   "extrait": "Achat de 5 AFMA à 1 250,00 MAD (montant 6 250 MAD)\n\nÉcart avec le dernier cours (1 250,00 MAD) : 0,00 %\nFrais d'achat : 45,00 MAD ; coût total : 6 295 MAD\nRevente minimum sans perte : 1 269,41 MAD (+1,55 %)\nÀ l'objectif (+2 %, 1 275,00 MAD) : gain net 28 MAD\nÀ la sortie (-3 %, 1 212,50 MAD) : perte nette -282 MAD\nPoids dans votre capital : 12,6 % (prévu par ligne : 10 000 MAD)\n\nPoints d'attention :\n\nValeur non échangée à la dernière séance : le cours affiché peut être ancien.\nValeur peu liquide : acheter et revendre au prix voulu peut être difficile.\nL'ordre pèse 45 % des capitaux échangés par"
+  },
+  "ia_arabe": {
+   "ok": true,
+   "extrait": "حصة 2026-11-13\n\n22 سهم في ارتفاع، 38 في انخفاض، 4 مستقر.\n\nالرسملة الإجمالية: 1 013,37 مليار درهم (-0,40 % في الحصة).\n\nأكبر الانخفاضات (أسهم سائلة):\n\nATLANTASANAD : -4,96 %\nVICENNE : -3,73 %\nDELTA HOLDING : -3,04 %\nSONASID : -2,54 %\nBMCI : -2,31 %\n\nأكبر الارتفاعات (أسهم سائلة):\n\nCIMENTS DU MAROC : +1,92 %\nJET CONTRACTORS : +1,69 %\nCOSUMAR : +1,68 %\nHPS : +1,61 %\nBCP : +1,12 %\n\nمنطقة الشراء حسب طريقتك: 22 سهم سائل، منها 0 بنتيجة صافية متوسطة إيجابية على ~3 سنوات.\n\nحساب التطبيق · بدون ذكاء اصطناعي"
+  }
+ },
+ "erreurs_page": [],
+ "debordements": {},
+ "ok": true
+}
