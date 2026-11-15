@@ -16,6 +16,7 @@ from app.collecte import collecter, lire_valeurs
 from app.diagnostic import diagnostiquer_tout
 from app.suivi import mettre_a_jour_journal, reconstituer, synthese
 from app.rendu import ecrire_excel, ecrire_historiques, ecrire_page
+from app import conseiller
 
 RACINE = Path(__file__).parent
 
@@ -90,6 +91,10 @@ def main(argv=None) -> int:
     ecrire_page(diag, sortie, demo=a.demo)
     ecrire_historiques(series, sortie)
     ecrire_excel(diag, sortie / "diagnostic.xlsx")
+    # Fichier compact pour le conseiller IA (claude.ai) : dans le site et, en réel, dans le dépôt
+    conseiller.ecrire(dict(diag, demo=a.demo), sortie / "conseiller.json")
+    if not a.demo:
+        conseiller.ecrire(dict(diag, demo=False), RACINE / "data" / "conseiller.json")
     m = diag["marche"]
     log.info("=== %d/%d valeurs diagnostiquées, séance du %s -> %s ===",
              m["nb_diagnostiquees"], m["nb_valeurs"], m["date_seance"], sortie)
