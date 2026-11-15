@@ -2,6 +2,11 @@
    {x} = valeur insérée. Les noms des sociétés restent ceux de la cote officielle. */
 const TEXTES = {
 fr: {
+  "inst.titre": "📲 Installer BVC Matin sur ce téléphone", "inst.texte": "L'application s'ouvrira en plein écran depuis son icône, comme une application normale.",
+  "inst.bouton": "Installer l'application", "inst.masquer": "Plus tard",
+  "inst.ios": "Touche le bouton <b>Partager</b> (le carré avec une flèche vers le haut) en bas de Safari|Fais défiler et touche <b>« Sur l'écran d'accueil »</b>|Touche <b>Ajouter</b> en haut à droite",
+  "inst.ios.autre": "Sur iPhone, l'installation se fait depuis <b>Safari</b> : copie l'adresse de cette page et ouvre-la dans Safari|Touche le bouton <b>Partager</b> (le carré avec une flèche vers le haut)|Touche <b>« Sur l'écran d'accueil »</b> puis <b>Ajouter</b>",
+  "inst.android": "Ouvre cette page dans <b>Chrome</b>|Touche le menu <b>⋮</b> en haut à droite|Touche <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>, puis confirme",
   "indice.cap": "Capitalisation du marché (Mds MAD)",
   "idee.titre": "Idées du matin — ma stratégie",
   "pan.titre": "Mon panier du jour", "pan.repart": "capital {c} réparti sur {n} valeur(s) max, {l} chacune",
@@ -146,6 +151,11 @@ fr: {
 },
 
 ar: {
+  "inst.titre": "📲 تثبيت BVC Matin على هذا الهاتف", "inst.texte": "سيُفتح التطبيق بملء الشاشة من أيقونته، مثل أي تطبيق عادي.",
+  "inst.bouton": "تثبيت التطبيق", "inst.masquer": "لاحقًا",
+  "inst.ios": "اضغط على زر <b>المشاركة</b> (المربع مع سهم إلى الأعلى) أسفل Safari|مرّر واضغط على <b>«إضافة إلى الشاشة الرئيسية»</b>|اضغط على <b>إضافة</b> في الأعلى",
+  "inst.ios.autre": "على iPhone، يتم التثبيت من <b>Safari</b>: انسخ عنوان هذه الصفحة وافتحه في Safari|اضغط على زر <b>المشاركة</b> (المربع مع سهم إلى الأعلى)|اضغط على <b>«إضافة إلى الشاشة الرئيسية»</b> ثم <b>إضافة</b>",
+  "inst.android": "افتح هذه الصفحة في <b>Chrome</b>|اضغط على القائمة <b>⋮</b> في الأعلى|اضغط على <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b> ثم أكّد",
   "indice.cap": "رسملة السوق (مليار درهم)",
   "idee.titre": "أفكار الصباح — استراتيجيتي",
   "pan.titre": "سلّتي لهذا اليوم", "pan.repart": "رأس مال {c} موزَّع على {n} قيم كحد أقصى، {l} لكل واحدة",

@@ -103,6 +103,16 @@ nav.bas button[aria-selected=true]{color:var(--text)}
 footer{color:var(--muted);font-size:12px;margin:22px 0 10px;line-height:1.5}
 footer a,a.lien{color:var(--info)}
 .hidden{display:none !important}
+/* Téléphone : aucun élément ne doit élargir la page */
+html,body{overflow-x:hidden}
+.stack>*,.grid>*,.kpis>*,.stats>*,.form2>*,.row>*{min-width:0}
+.card,.plan,.note,.alerte,.sub,.meta,td,th,label{overflow-wrap:anywhere}
+select,input{max-width:100%}
+table{table-layout:fixed}
+.masi .val,.pill,.kpi b,.stats b{overflow-wrap:normal;white-space:nowrap}
+.masi .val{font-size:clamp(22px,7vw,28px)}
+.installer{border:2px solid var(--up);background:var(--up-bg)}
+.installer ol{margin:8px 0 0;padding-inline-start:20px;line-height:1.6;font-size:14px}
 [dir=rtl] .close{float:left}
 [dir=rtl] .badge{right:auto;left:calc(50% - 20px)}
 [dir=rtl] body{font-family:"Noto Sans Arabic","Segoe UI","Geeza Pro",Tahoma,-apple-system,Roboto,sans-serif}
@@ -129,6 +139,7 @@ svg.spark,svg.big{direction:ltr}
 
   <!-- ACCUEIL -->
   <section id="v-accueil" class="stack">
+    <div class="card installer hidden" id="installer"></div>
     <div class="card masi" id="masi"></div>
     <div id="alertes-accueil"></div>
     <div class="grid" id="resume"></div>
@@ -858,8 +869,29 @@ function textesFixes() {
   $("#b-langue").setAttribute("aria-label", t("langue.titre"));
   $("#b-langue").title = t("langue.titre");
 }
+/* ---------- Installation sur l'écran d'accueil (Android, iPhone, PC) ---------- */
+let invitationInstall = null;
+const estInstallee = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+const estIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const estSafariIOS = () => estIOS() && !/crios|fxios|edgios/i.test(navigator.userAgent);
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); invitationInstall = e; rendreInstall(); });
+window.addEventListener("appinstalled", () => { invitationInstall = null; rendreInstall(); });
+function rendreInstall() {
+  const el = $("#installer");
+  if (estInstallee() || store.get("install_masque", false)) { el.classList.add("hidden"); return; }
+  let corps;
+  if (invitationInstall) corps = `<div class="btns"><button class="btn primary" id="b-installer">${t("inst.bouton")}</button><button class="btn" id="b-inst-masquer">${t("inst.masquer")}</button></div>`;
+  else if (estIOS()) corps = `<ol>${(estSafariIOS() ? t("inst.ios") : t("inst.ios.autre")).split("|").map(x => `<li>${x}</li>`).join("")}</ol><div class="btns"><button class="btn" id="b-inst-masquer">${t("inst.masquer")}</button></div>`;
+  else corps = `<ol>${t("inst.android").split("|").map(x => `<li>${x}</li>`).join("")}</ol><div class="btns"><button class="btn" id="b-inst-masquer">${t("inst.masquer")}</button></div>`;
+  el.innerHTML = `<h2>${t("inst.titre")}</h2><div class="sub">${t("inst.texte")}</div>${corps}`;
+  el.classList.remove("hidden");
+  const b = $("#b-installer");
+  if (b) b.onclick = async () => { invitationInstall.prompt(); try { await invitationInstall.userChoice; } catch (e) {} invitationInstall = null; rendreInstall(); };
+  $("#b-inst-masquer").onclick = () => { store.set("install_masque", true); rendreInstall(); };
+}
+
 function toutRendre() {
-  textesFixes(); rendreAccueil(); rendreStrategie(); rendreSuggestions(); rendreBilan(); rendrePortefeuille(); rendreSimulation(); rendreListe(); rendrePied();
+  textesFixes(); rendreInstall(); rendreAccueil(); rendreStrategie(); rendreSuggestions(); rendreBilan(); rendrePortefeuille(); rendreSimulation(); rendreListe(); rendrePied();
 }
 
 function montrer(v) {
