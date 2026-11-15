@@ -12,221 +12,274 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>BVC Matin</title>
 <style>
+/* Mise en page : en-tête fixe, contenu en une colonne, barre de 3 onglets en bas.
+   Couleur d'accent : bleu Majorelle, réservé aux actions ; vert/rouge = hausse/baisse uniquement. */
 :root{
-  --bg:#f4f6f8;--surface:#ffffff;--surface2:#eef1f4;--text:#14202b;--muted:#5d6b78;--line:#dde3e9;
-  --up:#13845c;--up-bg:#e3f4ec;--down:#c23b3b;--down-bg:#fbe7e7;--info:#2a62b8;--info-bg:#e5eefb;
-  --warn:#9a6700;--warn-bg:#fff4d6;--accent:#14202b;
+  --bg:#f3f5f9;--surface:#ffffff;--surface2:#eceff5;--text:#121a2b;--muted:#5e6779;--line:#dde2ec;
+  --accent:#2347c4;--accent-ink:#ffffff;--accent-soft:#e6ebfb;
+  --up:#11804f;--up-bg:#e1f3ea;--down:#c0372f;--down-bg:#fbe6e4;--warn:#9a5d00;--warn-bg:#fdf0d8;--info:#2347c4;--info-bg:#e6ebfb;
+  --hh:56px;--nav:62px;
+  --f:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#0b1117;--surface:#121a22;--surface2:#18222c;--text:#e7edf2;--muted:#8a9aa8;--line:#223040;
-  --up:#3fb68b;--up-bg:#123227;--down:#f06a6a;--down-bg:#3a1a1c;--info:#6aa3f0;--info-bg:#15263d;
-  --warn:#e3b341;--warn-bg:#33280f;--accent:#e7edf2;}}
+  --bg:#0c111b;--surface:#141b28;--surface2:#1b2434;--text:#e8ecf4;--muted:#93a0b5;--line:#253045;
+  --accent:#7d9cff;--accent-ink:#0c1430;--accent-soft:#1c2747;
+  --up:#45c08a;--up-bg:#13301f;--down:#ff7d73;--down-bg:#3a1a19;--warn:#e9b24a;--warn-bg:#352812;--info:#7d9cff;--info-bg:#1c2747;
+  color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-  font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  -webkit-font-smoothing:antialiased}
-.wrap{max-width:960px;margin:0 auto;padding:16px 16px calc(84px + env(safe-area-inset-bottom))}
-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:6px 0 14px}
-h1{font-size:22px;margin:0;letter-spacing:-.3px}
-.sub{color:var(--muted);font-size:13px}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 var(--f);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+[dir=rtl] body{font-family:"Noto Sans Arabic","Segoe UI","Geeza Pro",Tahoma,var(--f)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .num{font-variant-numeric:tabular-nums}
-.demo{background:#b8860b;color:#fff;padding:8px 12px;border-radius:10px;font-weight:600;font-size:13px;margin-bottom:12px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.hidden{display:none!important}
+[hidden]{display:none!important}
+
+/* En-tête */
+.tete{position:fixed;inset:0 0 auto;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+  padding:env(safe-area-inset-top) max(12px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+.tete .in{height:var(--hh);max-width:720px;margin:0 auto;display:flex;align-items:center;gap:8px}
+.tete h1{margin:0;font-size:19px;letter-spacing:-.2px;line-height:1.1}
+.tete .titre{flex:1;min-width:0}
+.tete .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ico{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-weight:700;font-size:15px;flex:none}
+.ico svg{width:22px;height:22px}
+
+.wrap{max-width:720px;margin:0 auto;padding:calc(var(--hh) + env(safe-area-inset-top) + 12px) max(16px,env(safe-area-inset-right)) calc(var(--nav) + env(safe-area-inset-bottom) + 20px) max(16px,env(safe-area-inset-left))}
 .stack{display:grid;gap:12px}
-.masi{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
-.masi .val{font-size:28px;font-weight:700;letter-spacing:-.5px}
-.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:600;font-size:13px;white-space:nowrap}
-.up{color:var(--up)}.down{color:var(--down)}
-.pill.up{background:var(--up-bg)}.pill.down{background:var(--down-bg)}.pill.flat{background:var(--surface2);color:var(--muted)}
-.breadth{grid-column:1/-1;display:flex;height:8px;border-radius:6px;overflow:hidden;background:var(--surface2);margin-top:6px}
+.stack>*{min-width:0}
+.sub{color:var(--muted);font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0;overflow-wrap:anywhere}
+h2{font-size:17px;margin:0;letter-spacing:-.1px}
+.sec{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:8px 2px 0}
+.lien{background:none;border:0;color:var(--accent);font-weight:600;font-size:14px;padding:10px 0;min-height:44px}
+a{color:var(--accent)}
+
+/* Bandeaux */
+.demo{background:var(--warn-bg);color:var(--warn);padding:10px 12px;border-radius:12px;font-weight:600;font-size:13px}
+.perime{background:var(--down-bg);color:var(--down);padding:10px 12px;border-radius:12px;font-size:13px;font-weight:600}
+.installer{border:1px solid var(--accent);background:var(--accent-soft)}
+.installer ol{margin:8px 0 0;padding-inline-start:20px;line-height:1.6;font-size:14px}
+.alerte-bandeau{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--warn-bg);color:var(--warn);border:0;border-radius:12px;padding:12px 14px;font-weight:600;font-size:14px;width:100%;text-align:start;min-height:44px}
+
+/* Marché : une seule ligne */
+.marche{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+.marche .val{font-size:22px;font-weight:700;white-space:nowrap}
+.breadth{grid-column:1/-1;display:flex;height:6px;border-radius:6px;overflow:hidden;background:var(--surface2);margin-top:6px}
 .breadth i{display:block}
 .legend{grid-column:1/-1;display:flex;gap:14px;font-size:13px;color:var(--muted);flex-wrap:wrap}
-.grid{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
-.card h2{font-size:15px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.card h2 small{color:var(--muted);font-weight:500;font-size:12px}
-.row{display:grid;grid-template-columns:1fr 70px auto;gap:10px;align-items:center;padding:9px 2px;border-top:1px solid var(--line);cursor:pointer}
-.card h2 + .row,.row:first-child{border-top:0}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-weight:600;font-size:13px;white-space:nowrap}
+.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--muted)}
+.pill.up{background:var(--up-bg)}.pill.down{background:var(--down-bg)}.pill.flat{background:var(--surface2)}
+
+/* Propositions */
+.props{display:grid;gap:10px}
+.prop{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px 14px;cursor:pointer;display:grid;gap:4px;min-width:0;text-align:start;width:100%}
+.prop:active{background:var(--surface2)}
+.prop .h{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}
+.prop .n{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.prop .m{font-size:14px;color:var(--muted)}
+.prop .r{font-size:14px;line-height:1.4}
+.statut{flex:none;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.s-fav{background:var(--up-bg);color:var(--up)}.s-surv{background:var(--warn-bg);color:var(--warn)}
+.s-vente{background:var(--down-bg);color:var(--down)}.s-hors,.s-peu{background:var(--surface2);color:var(--muted)}
+.vide{color:var(--muted);font-size:14px;line-height:1.5}
+.note{font-size:13px;color:var(--muted);line-height:1.45}
+.honnete{background:var(--warn-bg);color:var(--text);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.45}
+
+/* Liste des valeurs */
+.outils{display:flex;gap:8px;margin:2px 0 8px}
+.outils input{flex:1;min-width:0}
+.outils select{flex:0 1 46%;min-width:0}
+input,select{min-height:44px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:16px;width:100%;max-width:100%}
+.liste{padding:4px 14px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 64px auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line);cursor:pointer;min-height:56px}
+.row:first-child{border-top:0}
 .row .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .meta{color:var(--muted);font-size:12px}
-.row .px{text-align:end;font-size:14px}
-.empty{color:var(--muted);font-size:13px;padding:6px 2px}
-.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
-input,select{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:16px;width:100%}
-.tools input,.tools select{flex:1;min-width:140px;width:auto}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.chip{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:6px 11px;border-radius:999px;font-size:13px;cursor:pointer}
-.chip[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
-.tag{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--surface2);color:var(--muted)}
-.tag.baisse,.tag.vente{background:var(--down-bg);color:var(--down)}.tag.hausse,.tag.achat{background:var(--up-bg);color:var(--up)}
-.tag.info{background:var(--info-bg);color:var(--info)}.tag.warn{background:var(--warn-bg);color:var(--warn)}
-svg.spark{width:70px;height:26px;display:block}
-.btn{border:1px solid var(--line);background:var(--surface2);color:var(--text);padding:9px 14px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer}
-.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.row .meta{color:var(--muted);font-size:13px}
+.row .px{text-align:end}
+svg.spark{width:64px;height:24px;display:block;direction:ltr}
+
+/* Boutons */
+.btn{min-height:44px;border:1px solid var(--line);background:var(--surface2);padding:10px 16px;border-radius:12px;font-weight:600;font-size:15px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.danger{color:var(--down)}
-.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.alerte{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:10px;margin-top:8px;cursor:pointer}
-.alerte.baisse{background:var(--down-bg)}.alerte.hausse{background:var(--up-bg)}.alerte.warn{background:var(--warn-bg)}
-.alerte b{display:block}
-.note{background:var(--info-bg);color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.45}
-.sugg{border-top:1px solid var(--line);padding:12px 2px}
-.sugg:first-of-type{border-top:0}
-.sugg .t{display:flex;justify-content:space-between;gap:8px;align-items:center}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 4px}
-.stats div{background:var(--surface2);border-radius:8px;padding:6px 8px}
-.stats b{display:block;font-size:14px}.stats span{font-size:11px;color:var(--muted)}
-.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
-@media(min-width:520px){.kpis{grid-template-columns:repeat(3,1fr)}}
-.kpi{background:var(--surface2);border-radius:10px;padding:8px 10px}
-.kpi b{display:block;font-size:15px}.kpi span{font-size:12px;color:var(--muted)}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{text-align:start;padding:7px 4px;border-top:1px solid var(--line)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btns.col{display:grid;grid-template-columns:1fr 1fr}
+.btns.col .btn{width:100%}
+.seg{display:flex;background:var(--surface2);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;min-height:40px;border:0;background:transparent;border-radius:10px;font-weight:600;font-size:15px;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{min-height:36px;border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px;font-size:14px}
+.chip[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+/* Indicateurs */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+@media(min-width:520px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.kpi{background:var(--surface2);border-radius:12px;padding:9px 11px;min-width:0}
+.kpi b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi span{font-size:12px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 4px}
+.stats div{background:var(--surface2);border-radius:10px;padding:7px 8px;min-width:0}
+.stats b{display:block;font-size:15px;white-space:nowrap}.stats span{font-size:11px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th,td{text-align:start;padding:7px 4px;border-top:1px solid var(--line);overflow-wrap:anywhere}
 th{color:var(--muted);font-weight:500;font-size:12px;border-top:0}
 td.r,th.r{text-align:end}
-.sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:30;align-items:flex-end;justify-content:center}
-.sheet.open{display:flex}
-.panel{background:var(--surface);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
-@media(min-width:720px){.sheet{align-items:center}.panel{border-radius:18px}}
-.panel h3{margin:0;font-size:20px}
-.close{float:right;border:0;background:var(--surface2);color:var(--text);width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer}
-.big{width:100%;height:180px;margin:10px 0 4px;display:block}
-label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.tag{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--surface2);color:var(--muted)}
+.tag.baisse,.tag.vente{background:var(--down-bg);color:var(--down)}.tag.hausse,.tag.achat{background:var(--up-bg);color:var(--up)}
+.tag.info{background:var(--info-bg);color:var(--info)}.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.plan{background:var(--surface2);border-radius:12px;padding:10px 12px;margin-top:8px;font-size:14px;line-height:1.5}
+.sugg{border-top:1px solid var(--line);padding:12px 0}.sugg:first-of-type{border-top:0}
+.sugg .t{display:flex;justify-content:space-between;gap:8px;align-items:center}
+details.plus{background:var(--surface);border:1px solid var(--line);border-radius:16px}
+details.plus>summary{list-style:none;cursor:pointer;padding:14px;min-height:48px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px}
+details.plus>summary::-webkit-details-marker{display:none}
+details.plus>summary::after{content:"＋";color:var(--muted);font-weight:400}
+details.plus[open]>summary::after{content:"−"}
+details.plus>.corps{padding:0 14px 14px;min-width:0;overflow-wrap:anywhere}
+
+/* Couches plein écran : fiche d'une valeur et réglages */
+.couche{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;overscroll-behavior:contain}
+.couche .barre{position:sticky;top:0;z-index:2;background:var(--surface);border-bottom:1px solid var(--line);
+  padding:env(safe-area-inset-top) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left))}
+.couche .barre .in{height:var(--hh);max-width:720px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.couche .barre b{flex:1;min-width:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.couche .corps{max-width:720px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+[dir=rtl] .retour svg{transform:scaleX(-1)}
+.prix{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.prix .gros{font-size:32px;font-weight:700;letter-spacing:-.5px;white-space:nowrap}
+.big{width:100%;height:170px;margin:8px 0 2px;display:block;direction:ltr}
+.verdict{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.prop-txt p{margin:8px 0 0;font-size:15px;line-height:1.5}
 .form2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
-nav.bas{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
-  display:flex;justify-content:center;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
-nav.bas .in{display:flex;width:100%;max-width:640px}
-nav.bas button{flex:1;border:0;background:none;color:var(--muted);font-size:11px;font-weight:600;padding:4px 2px;cursor:pointer;position:relative}
-nav.bas button svg{display:block;margin:0 auto 2px;width:22px;height:22px}
-nav.bas button[aria-selected=true]{color:var(--text)}
-.badge{position:absolute;top:0;right:calc(50% - 20px);background:var(--down);color:#fff;border-radius:999px;font-size:10px;min-width:16px;height:16px;line-height:16px;padding:0 4px}
-footer{color:var(--muted);font-size:12px;margin:22px 0 10px;line-height:1.5}
-footer a,a.lien{color:var(--info)}
-.hidden{display:none !important}
-/* Téléphone : aucun élément ne doit élargir la page */
-html,body{overflow-x:hidden}
-.stack>*,.grid>*,.kpis>*,.stats>*,.form2>*,.row>*{min-width:0}
-.card,.plan,.note,.alerte,.sub,.meta,td,th,label{overflow-wrap:anywhere}
-select,input{max-width:100%}
-table{table-layout:fixed}
-.masi .val,.pill,.kpi b,.stats b{overflow-wrap:normal;white-space:nowrap}
-.masi .val{font-size:clamp(22px,7vw,28px)}
-.installer{border:2px solid var(--up);background:var(--up-bg)}
-.installer ol{margin:8px 0 0;padding-inline-start:20px;line-height:1.6;font-size:14px}
+.form2>*{min-width:0}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px;font-weight:500}
+.reg h2{margin:22px 2px 8px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.reg h2:first-child{margin-top:4px}
+
+/* Fiches de saisie (bas d'écran) */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:45;align-items:flex-end;justify-content:center}
+.sheet.open{display:flex}
+.panel{background:var(--surface);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px max(16px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+@media(min-width:720px){.sheet{align-items:center}.panel{border-radius:20px}}
+.panel h3{margin:0 0 4px;font-size:19px}
+.close{float:right;border:0;background:var(--surface2);width:40px;height:40px;border-radius:50%;font-size:20px}
 [dir=rtl] .close{float:left}
-[dir=rtl] .badge{right:auto;left:calc(50% - 20px)}
-[dir=rtl] body{font-family:"Noto Sans Arabic","Segoe UI","Geeza Pro",Tahoma,-apple-system,Roboto,sans-serif}
-svg.spark,svg.big{direction:ltr}
-.langue.ia{display:inline-flex;align-items:center;text-decoration:none;font-size:13px;border-color:var(--accent,#2a9d8f)}
-.langue{border:1px solid var(--line);background:var(--surface);color:var(--text);min-width:40px;height:36px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;padding:0 10px}
-.perime{background:var(--down-bg);color:var(--down);padding:10px 12px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px}
-.plan{background:var(--surface2);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px;line-height:1.5}
-.plan b{font-weight:700}
+
+/* Positions du portefeuille */
+.pos{display:grid;gap:6px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.pos:first-child{border-top:0}
+.pos .h{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.pos .n{font-weight:700}
+.alerte{padding:8px 10px;border-radius:10px;font-size:13px;line-height:1.4}
+.alerte.baisse{background:var(--down-bg);color:var(--down)}.alerte.hausse{background:var(--up-bg);color:var(--up)}.alerte.warn{background:var(--warn-bg);color:var(--warn)}
+.gros-net{font-size:26px;font-weight:700;white-space:nowrap}
+
+/* Barre d'onglets */
+nav.bas{position:fixed;inset:auto 0 0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:0 max(8px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(8px,env(safe-area-inset-left))}
+nav.bas .in{display:flex;max-width:520px;margin:0 auto;height:var(--nav)}
+nav.bas button{flex:1;border:0;background:none;color:var(--muted);font-size:12px;font-weight:600;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+nav.bas button svg{width:24px;height:24px}
+nav.bas button[aria-selected=true]{color:var(--accent)}
+.badge{position:absolute;top:6px;inset-inline-start:calc(50% + 6px);background:var(--down);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;line-height:18px;padding:0 5px}
+footer{color:var(--muted);font-size:12px;margin:18px 2px 0;line-height:1.5}
+body.fige{overflow:hidden}
 </style>
 </head>
 <body>
+<header class="tete"><div class="in">
+  <div class="titre"><h1>BVC Matin</h1><span class="sub" id="seance"></span></div>
+  <button class="ico" id="b-langue" type="button"></button>
+  <button class="ico" id="b-reglages" type="button" data-i18n-aria="reg.ouvrir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+</div></header>
+
 <div class="wrap">
-  <div id="demo" class="demo hidden" data-i18n="app.demo"></div>
-  <div id="perime" class="perime hidden"></div>
-  <header>
-    <div><h1>BVC Matin</h1><div class="sub" id="seance"></div></div>
-    <div style="display:flex;gap:10px;align-items:flex-end">
-      <div class="sub num" id="maj" style="text-align:end"></div>
-      <button class="langue ia" id="b-ia" type="button"></button>
-      <button class="langue" id="b-langue" aria-label=""></button>
-    </div>
-  </header>
-
-
-
-  <!-- ACCUEIL -->
-  <section id="v-accueil" class="stack">
+  <!-- AUJOURD'HUI -->
+  <section id="v-auj" class="stack">
+    <div id="demo" class="demo hidden" data-i18n="app.demo"></div>
+    <div id="perime" class="perime hidden"></div>
     <div class="card installer hidden" id="installer"></div>
-    <div class="card masi" id="masi"></div>
-    <div id="alertes-accueil"></div>
-    <div class="grid" id="resume"></div>
-  </section>
-
-  <!-- SUGGESTIONS -->
-  <section id="v-suggestions" class="stack hidden">
-    <div class="card" id="strategie"></div>
-    <div class="note" data-i18n-html="sugg.note"></div>
-    <div class="chips" id="f-sugg">
-      <button class="chip" data-f="validees" aria-pressed="true" data-i18n="filtre.validees"></button>
-      <button class="chip" data-f="achat" aria-pressed="false" data-i18n="filtre.achat"></button>
-      <button class="chip" data-f="vente" aria-pressed="false" data-i18n="filtre.vente"></button>
-      <button class="chip" data-f="toutes" aria-pressed="false" data-i18n="filtre.toutes"></button>
+    <div id="bandeau-alertes"></div>
+    <div class="card marche" id="marche"></div>
+    <div class="sec"><h2 data-i18n="prop.titre"></h2><button class="lien" type="button" data-reglages="1" data-i18n="prop.modifier"></button></div>
+    <div class="sub" id="prop-reglage" style="margin:-6px 2px 0"></div>
+    <div id="propositions" class="stack"></div>
+    <div class="sec"><h2 data-i18n="liste.titre"></h2><span class="sub num" id="liste-n"></span></div>
+    <div class="outils">
+      <input id="q" type="search" autocomplete="off" data-i18n-ph="val.recherche">
+      <select id="tri" data-i18n-aria="liste.tri">
+        <option value="var_jour:asc" data-i18n="tri.var_asc"></option>
+        <option value="var_jour:desc" data-i18n="tri.var_desc"></option>
+        <option value="nom:asc" data-i18n="tri.nom"></option>
+        <option value="ecart_bas_52s:asc" data-i18n="tri.bas"></option>
+        <option value="capitaux_moy:desc" data-i18n="tri.liquidite"></option>
+        <option value="ratio_volume:desc" data-i18n="tri.volume"></option>
+        <option value="attention:desc" data-i18n="tri.attention"></option>
+        <option value="amplitude_moy:desc" data-i18n="tri.amplitude"></option>
+        <option value="var_ytd:asc" data-i18n="tri.ytd"></option>
+      </select>
     </div>
-    <div class="card" id="liste-sugg"></div>
-    <div class="card" id="bilan"></div>
+    <div class="card liste" id="liste"></div>
+    <details class="plus" id="d-signaux"><summary id="s-signaux"></summary><div class="corps">
+      <div class="note" data-i18n-html="sugg.note"></div>
+      <div class="chips" id="f-sugg" style="margin:10px 0 2px">
+        <button class="chip" data-f="validees" aria-pressed="true" data-i18n="filtre.validees"></button>
+        <button class="chip" data-f="achat" aria-pressed="false" data-i18n="filtre.achat"></button>
+        <button class="chip" data-f="vente" aria-pressed="false" data-i18n="filtre.vente"></button>
+        <button class="chip" data-f="toutes" aria-pressed="false" data-i18n="filtre.toutes"></button>
+      </div>
+      <div id="liste-sugg"></div>
+    </div></details>
+    <details class="plus"><summary data-i18n="plus.bilan"></summary><div class="corps" id="bilan"></div></details>
+    <footer id="pied"></footer>
   </section>
 
   <!-- PORTEFEUILLE -->
-  <section id="v-portefeuille" class="stack hidden">
-    <div class="card" id="pf-resume"></div>
-    <div id="pf-alertes"></div>
-    <div class="card" id="pf-liste"></div>
-    <div class="card">
-      <h2><span data-i18n="reg.titre"></span><small data-i18n="reg.note"></small></h2>
-      <div class="form2">
-        <div><label data-i18n="reg.courtage"></label><input id="r-courtage" type="number" step="0.01" inputmode="decimal"></div>
-        <div><label data-i18n="reg.taxe"></label><input id="r-taxe" type="number" step="0.01" inputmode="decimal"></div>
-        <div><label data-i18n="reg.stop"></label><input id="r-stop" type="number" step="0.5" inputmode="decimal"></div>
-        <div><label data-i18n="reg.objectif"></label><input id="r-objectif" type="number" step="0.5" inputmode="decimal"></div>
-        <div><label data-i18n="reg.capital"></label><input id="r-capital" type="number" step="1000" inputmode="numeric"></div>
-        <div><label data-i18n="reg.risque"></label><input id="r-risque" type="number" step="0.25" inputmode="decimal"></div>
-      </div>
-      <div class="sub" style="margin-top:6px" data-i18n="reg.tva"></div>
-      <div class="btns">
-        <button class="btn" id="b-export" data-i18n="reg.export"></button>
-        <button class="btn" id="b-import" data-i18n="reg.import"></button>
-      </div>
-      <div class="sub" style="margin-top:6px" data-i18n="reg.sauv.note"></div>
+  <section id="v-pf" class="stack hidden">
+    <div class="seg" id="seg-pf" role="group">
+      <button type="button" data-seg="reel" aria-pressed="true" data-i18n="pf.reel"></button>
+      <button type="button" data-seg="sim" aria-pressed="false" data-i18n="pf.sim"></button>
+    </div>
+    <div id="pf-reel" class="stack">
+      <div class="card" id="pf-resume"></div>
+      <div class="card" id="pf-liste"></div>
+    </div>
+    <div id="pf-sim" class="stack hidden">
+      <div class="note" data-i18n="sim.note"></div>
+      <div class="card" id="sim-resume"></div>
+      <div class="card" id="sim-positions"></div>
+      <div class="card" id="sim-journal"></div>
     </div>
   </section>
 
-  <!-- SIMULATION -->
-  <section id="v-simulation" class="stack hidden">
-    <div class="note" data-i18n="sim.note"></div>
-    <div class="card" id="sim-resume"></div>
-    <div class="card" id="sim-positions"></div>
-    <div class="card" id="sim-journal"></div>
-  </section>
-
-  <!-- VALEURS -->
-  <section id="v-valeurs" class="hidden">
-    <div class="tools">
-      <input id="q" type="search" autocomplete="off" data-i18n-ph="val.recherche">
-      <select id="tri">
-        <option value="var_jour:asc" data-i18n="tri.var_asc"></option>
-        <option value="var_jour:desc" data-i18n="tri.var_desc"></option>
-        <option value="attention:desc" data-i18n="tri.attention"></option>
-        <option value="ratio_volume:desc" data-i18n="tri.volume"></option>
-        <option value="amplitude_moy:desc" data-i18n="tri.amplitude"></option>
-        <option value="capitaux_moy:desc" data-i18n="tri.liquidite"></option>
-        <option value="ecart_bas_52s:asc" data-i18n="tri.bas"></option>
-        <option value="var_ytd:asc" data-i18n="tri.ytd"></option>
-        <option value="nom:asc" data-i18n="tri.nom"></option>
-      </select>
-    </div>
-    <div class="chips" id="f-valeurs">
-      <button class="chip" data-f="tout" aria-pressed="true" data-i18n="fv.tout"></button>
-      <button class="chip" data-f="baisse" aria-pressed="false" data-i18n="fv.baisse"></button>
-      <button class="chip" data-f="hausse" aria-pressed="false" data-i18n="fv.hausse"></button>
-      <button class="chip" data-f="signal" aria-pressed="false" data-i18n="fv.signal"></button>
-    </div>
-    <div class="card" id="liste"></div>
-  </section>
-
-  <footer id="pied"></footer>
+  <!-- IA : contenu construit par ia.js -->
+  <section id="v-ia" class="hidden"></section>
 </div>
 
+<!-- Fiche d'une valeur -->
+<section class="couche" id="fiche" hidden role="dialog" aria-modal="true">
+  <div class="barre"><div class="in">
+    <button class="ico retour" type="button" data-fermer-couche="1" data-i18n-aria="retour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <b id="fiche-titre"></b></div></div>
+  <div class="corps" id="fiche-corps"></div>
+</section>
+
+<!-- Réglages -->
+<section class="couche" id="reglages" hidden role="dialog" aria-modal="true">
+  <div class="barre"><div class="in">
+    <button class="ico retour" type="button" data-fermer-couche="1" data-i18n-aria="retour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <b data-i18n="reg.titre"></b></div></div>
+  <div class="corps reg" id="reglages-corps"></div>
+</section>
+
 <nav class="bas"><div class="in" role="tablist">
-  <button data-v="accueil" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span data-i18n="nav.accueil"></span></button>
-  <button data-v="suggestions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg><span data-i18n="nav.suggestions"></span><span class="badge hidden" id="badge-sugg"></span></button>
-  <button data-v="portefeuille"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span data-i18n="nav.portefeuille"></span><span class="badge hidden" id="badge-pf"></span></button>
-  <button data-v="simulation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="nav.simulation"></span></button>
-  <button data-v="valeurs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span data-i18n="nav.valeurs"></span></button>
+  <button data-v="auj" aria-selected="true" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 7-8"/><path d="M15 7h4v4"/></svg><span data-i18n="nav.auj"></span></button>
+  <button data-v="pf" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span data-i18n="nav.pf"></span><span class="badge hidden" id="badge-pf"></span></button>
+  <button data-v="ia" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg><span data-i18n="nav.ia"></span></button>
 </div></nav>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="panel" id="panel"></div></div>
@@ -259,10 +312,10 @@ const iso = s => LANG === "ar" ? "⁦" + s + "⁩" : s;
 
 /* ---------- Formats ---------- */
 const brut = (x, d = 2) => Number(x).toLocaleString("fr-FR", {minimumFractionDigits: d, maximumFractionDigits: d});
-const pc = (x, d = 2) => x == null || isNaN(x) ? "—" : iso(brut(x, d) + " %");
+const pc = (x, d = 2) => x == null || isNaN(x) ? "—" : iso(brut(x, d) + " %");
 const fmt = (x, d = 2) => x == null || isNaN(x) ? "—" : iso(Number(x).toLocaleString("fr-FR", {minimumFractionDigits: d, maximumFractionDigits: d}));
-const mad = (x, d = 2) => fmt(x, d) + " " + t("mad");
-const pct = x => x == null || isNaN(x) ? "—" : iso((x > 0 ? "+" : "") + Number(x).toLocaleString("fr-FR", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " %");
+const mad = (x, d = 2) => fmt(x, d) + " " + t("mad");
+const pct = x => x == null || isNaN(x) ? "—" : iso((x > 0 ? "+" : "") + Number(x).toLocaleString("fr-FR", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " %");
 const cls = x => x == null || x === 0 || isNaN(x) ? "flat" : x > 0 ? "up" : "down";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const dateLongue = s => s ? new Date(s + "T12:00:00").toLocaleDateString(LOC_DATE(), {weekday:"long", day:"numeric", month:"long", year:"numeric"}) : "—";
@@ -285,34 +338,36 @@ function frais(montant, sens) {
 }
 
 /* ---------- Petits graphiques ---------- */
-function spark(h, w = 70, ht = 26) {
+function spark(h, w = 64, ht = 24) {
   if (!h || h.length < 2) return "<span></span>";
   const lo = Math.min(...h), hi = Math.max(...h), r = hi - lo || 1;
   const pts = h.map((v, i) => `${(i / (h.length - 1) * w).toFixed(1)},${(ht - 2 - (v - lo) / r * (ht - 4)).toFixed(1)}`).join(" ");
   const col = h[h.length - 1] >= h[0] ? "var(--up)" : "var(--down)";
-  return `<svg class="spark" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`;
+  return `<svg class="spark" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`;
 }
 function courbe(h) {
-  const W = 640, H = 180, P = 6;
-  if (!h || h.length < 2) return `<div class="empty">${t("courbe.vide")}</div>`;
+  const W = 640, H = 170, P = 6;
+  if (!h || h.length < 2) return `<div class="vide">${t("courbe.vide")}</div>`;
   const lo = Math.min(...h), hi = Math.max(...h), r = hi - lo || 1;
-  const pts = h.map((v, i) => `${(i / (h.length - 1) * W).toFixed(1)},${(H - P - (v - lo) / r * (H - 2 * P)).toFixed(1)}`).join(" ");
+  const xy = h.map((v, i) => [(i / (h.length - 1) * W).toFixed(1), (H - P - (v - lo) / r * (H - 2 * P)).toFixed(1)]);
+  const pts = xy.map(p => p.join(",")).join(" ");
   const col = h[h.length - 1] >= h[0] ? "var(--up)" : "var(--down)";
-  return `<svg class="big" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+  return `<svg class="big" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="0,${H} ${pts} ${W},${H}" fill="${col}" opacity=".08"/>
+      <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
     <div class="sub num">${t("courbe.info", {n: fmt(h.length, 0), lo: fmt(lo), hi: fmt(hi), v: pct((h[h.length - 1] / h[0] - 1) * 100)})}</div>`;
 }
 
-/* ---------- Lignes et blocs ---------- */
-const tags = (f, max = 3) => f.signaux.slice(0, max).map(s => `<span class="tag ${s.type}">${esc(texteSignal(s))}</span>`).join("");
+/* ---------- Ligne de la liste ---------- */
 function ligne(f, extra = "") {
-  return `<div class="row" data-isin="${f.isin}">
-    <div><div class="n">${esc(f.nom)}</div><div class="meta num">${mad(f.cours)}${extra}</div>${f.signaux.length ? `<div class="tags">${tags(f, 2)}</div>` : ""}</div>
+  return `<div class="row" data-isin="${f.isin}" role="button" tabindex="0">
+    <div style="min-width:0"><div class="n">${esc(f.nom)}</div><div class="meta num">${mad(f.cours)}${extra}</div></div>
     ${spark(f.historique.slice(-60))}
     <div class="px num"><span class="pill ${cls(f.var_jour)}">${pct(f.var_jour)}</span></div></div>`;
 }
-const bloc = (titre, note, items, extra) => `<div class="card"><h2>${titre}<small>${note}</small></h2>${items.length ? items.map(f => ligne(f, extra ? extra(f) : "")).join("") : `<div class="empty">${t("bloc.vide")}</div>`}</div>`;
+const tags = (f, max = 3) => f.signaux.slice(0, max).map(s => `<span class="tag ${s.type}">${esc(texteSignal(s))}</span>`).join("");
 
-/* ---------- Suggestions ---------- */
+/* ---------- Règles techniques (signaux) ---------- */
 function taille(p) {
   // Quantité telle que la perte, si le seuil de sortie est touché, reste ≤ risque % du capital.
   if (!p || !(p.entree > p.stop)) return null;
@@ -337,7 +392,7 @@ function carteSugg(s) {
   const f = s.f, achat = s.sens === "achat";
   const taux = x => x == null ? "—" : pc(x, 0);
   return `<div class="sugg">
-    <div class="t"><div><b>${esc(f.nom)}</b> <span class="sub num">${mad(f.cours)}</span></div>
+    <div class="t"><div style="min-width:0"><b>${esc(f.nom)}</b> <span class="sub num">${mad(f.cours)}</span></div>
       <span class="pill ${cls(f.var_jour)}">${pct(f.var_jour)}</span></div>
     <div class="tags" style="margin-top:6px">
       <span class="tag ${s.sens}">${achat ? t("sugg.achat") : t("sugg.vente")}</span>
@@ -354,18 +409,14 @@ function carteSugg(s) {
       lab: achat ? t("sugg.recent.g") : t("sugg.recent.b"), m: pct(s.recent.gain_moyen)})}</div>` : ""}
     ${s.fiable ? "" : `<div class="sub" style="color:var(--warn)">${t("sugg.pourquoi", {m: esc(motif(s))})}</div>`}
     ${achat ? htmlPlan(s) : ""}
-    <div class="sub" style="margin-top:6px">${t("sugg.tests", {n: s.duree, f: achat ? t("sugg.frais") : "",
-      a: f.amplitude_moy == null ? "—" : pc(f.amplitude_moy), c: fmt((f.capitaux_moy || 0) / 1e6, 1)})}</div>
-    <div class="btns">
-      <button class="btn" data-detail="${f.isin}">${t("sugg.detail")}</button>
-      ${achat ? `<button class="btn" data-sim="${f.isin}" data-qte="${taille(s.plan)?.q || ""}">${t("sugg.simuler")}</button>` : ""}
-    </div></div>`;
+    <div class="btns"><button class="btn" data-detail="${f.isin}" type="button">${t("sugg.detail")}</button>
+      ${achat ? `<button class="btn" data-sim="${f.isin}" data-qte="${taille(s.plan)?.q || ""}" type="button">${t("sugg.simuler")}</button>` : ""}</div></div>`;
 }
 function carteBilan(titre, note, b, vide) {
   const a = b?.achats_clos || {nombre: 0};
   const regles = Object.entries(b?.par_regle || {});
   const etat = l => l.statut === "clos" ? t("sortie." + l.sortie) : l.statut === "attente" ? t("bilan.attente") : t("bilan.encours");
-  return `<h2>${titre}<small>${note}</small></h2>` + (a.nombre ? `
+  return `<div style="font-weight:700;margin-top:4px">${titre} <span class="sub" style="font-weight:400">${note}</span></div>` + (a.nombre ? `
     <div class="stats num">
       <div><span>${t("bilan.closes")}</span><b>${fmt(a.nombre, 0)}</b></div>
       <div><span>${t("bilan.gagnantes")}</span><b>${pc(a.gagnantes_pct, 0)}</b></div>
@@ -373,7 +424,7 @@ function carteBilan(titre, note, b, vide) {
       <div><span>${t("bilan.pire")}</span><b class="${cls(a.pire_pct)}">${pct(a.pire_pct)}</b></div></div>
     ${regles.length ? `<table style="margin-top:8px"><tr><th>${t("bilan.regle")}</th><th class="r">${t("bilan.nb")}</th><th class="r">${t("bilan.gagn")}</th><th class="r">${t("bilan.moy.c")}</th></tr>
       ${regles.map(([c, r]) => `<tr><td>${esc(nomRegle(c))}</td><td class="r">${fmt(r.nombre, 0)}</td><td class="r">${pc(r.gagnantes_pct, 0)}</td><td class="r ${cls(r.moyenne_pct)}">${pct(r.moyenne_pct)}</td></tr>`).join("")}</table>` : ""}`
-    : `<div class="empty">${vide}</div>`) + (b?.dernieres?.length ? `
+    : `<div class="vide">${vide}</div>`) + (b?.dernieres?.length ? `
     <table style="margin-top:10px"><tr><th>${t("bilan.signal")}</th><th>${t("bilan.valeur")}</th><th class="r">${t("bilan.resultat")}</th></tr>
       ${b.dernieres.slice(0, 15).map(l => `<tr data-isin="${l.isin}" class="row-bilan" style="cursor:pointer"><td>${dateCourte(l.date_signal)}</td>
         <td><b>${esc(l.nom)}</b><div class="sub">${esc(nomRegle(l.regle))} · ${esc(etat(l))}</div></td>
@@ -394,10 +445,8 @@ function rendreSuggestions() {
   if (filtreSugg === "validees") l = l.filter(s => s.fiable);
   if (filtreSugg === "achat") l = l.filter(s => s.sens === "achat");
   if (filtreSugg === "vente") l = l.filter(s => s.sens === "vente");
-  $("#liste-sugg").innerHTML = `<h2>${t("sugg.titre", {n: l.length})}<small>${t("sugg.seance", {d: dateCourte(M.date_seance)})}</small></h2>` +
-    (l.map(carteSugg).join("") || `<div class="empty">${filtreSugg === "validees" ? t("sugg.vide.validees") : t("sugg.vide")}</div>`);
-  const n = TOUTES_SUGG.filter(s => s.fiable).length;
-  $("#badge-sugg").textContent = n; $("#badge-sugg").classList.toggle("hidden", !n);
+  $("#s-signaux").textContent = t("plus.signaux", {n: TOUTES_SUGG.length});
+  $("#liste-sugg").innerHTML = l.map(carteSugg).join("") || `<div class="vide" style="margin-top:8px">${filtreSugg === "validees" ? t("sugg.vide.validees") : t("sugg.vide")}</div>`;
 }
 
 /* ---------- Portefeuille et alertes ---------- */
@@ -413,66 +462,56 @@ function alertesPortefeuille() {
   const a = [];
   PF.forEach(p => {
     const e = evaluer(p), f = e.f;
-    if (!f) return a.push({t: "warn", isin: p.isin, titre: p.nom, txt: t("al.indispo")});
+    if (!f) return a.push({t: "warn", isin: p.isin, id: p.id, titre: p.nom, txt: t("al.indispo")});
     const stop = p.stop ?? R.stop, obj = p.objectif ?? R.objectif;
-    if (e.netPct != null && e.netPct <= stop) a.push({t: "baisse", isin: p.isin, titre: f.nom, txt: t("al.stop", {v: pct(e.netPct), s: pct(stop)})});
-    if (e.netPct != null && e.netPct >= obj) a.push({t: "hausse", isin: p.isin, titre: f.nom, txt: t("al.obj", {v: pct(e.netPct), s: pct(obj)})});
+    if (e.netPct != null && e.netPct <= stop) a.push({t: "baisse", isin: p.isin, id: p.id, titre: f.nom, txt: t("al.stop", {v: pct(e.netPct), s: pct(stop)})});
+    if (e.netPct != null && e.netPct >= obj) a.push({t: "hausse", isin: p.isin, id: p.id, titre: f.nom, txt: t("al.obj", {v: pct(e.netPct), s: pct(obj)})});
     (f.suggestions || []).filter(s => s.sens === "vente").forEach(s =>
-      a.push({t: "warn", isin: p.isin, titre: f.nom, txt: t("al.vente", {r: nomRegle(s.code), f: s.fiable ? t("al.vente.f") : ""})}));
-    if (f.var_jour != null && f.var_jour <= -4) a.push({t: "baisse", isin: p.isin, titre: f.nom, txt: t("al.baisse", {v: pct(f.var_jour)})});
-    if (!f.a_jour) a.push({t: "warn", isin: p.isin, titre: f.nom, txt: t("al.nonech")});
+      a.push({t: "warn", isin: p.isin, id: p.id, titre: f.nom, txt: t("al.vente", {r: nomRegle(s.code), f: s.fiable ? t("al.vente.f") : ""})}));
+    if (f.var_jour != null && f.var_jour <= -4) a.push({t: "baisse", isin: p.isin, id: p.id, titre: f.nom, txt: t("al.baisse", {v: pct(f.var_jour)})});
+    if (!f.a_jour) a.push({t: "warn", isin: p.isin, id: p.id, titre: f.nom, txt: t("al.nonech")});
   });
   return a;
-}
-const htmlAlertes = l => l.map(x => `<div class="alerte ${x.t}" data-isin="${x.isin}"><div><b>${esc(x.titre)}</b>${esc(x.txt)}</div></div>`).join("");
-
-/* Copie le portefeuille et les réglages pour les coller dans le conseiller IA (rien n'est envoyé ailleurs). */
-function copierPourIA() {
-  const txt = JSON.stringify({reglages: {capital: R.capital, lignes: R.lignes, courtage: R.courtage, taxe: R.taxe, obj: R.obj, seuil: R.seuil, duree: R.duree},
-    portefeuille: PF.map(p => ({isin: p.isin, nom: p.nom, qte: p.qte, prix: p.prix, date: p.date, stop: p.stop, objectif: p.objectif}))});
-  const fini = ok => { $("#ia-msg").textContent = ok ? t("ia.copie") : t("ia.copie.ko"); if (!ok) prompt("", txt); };
-  try { navigator.clipboard.writeText(txt).then(() => fini(true), () => fini(false)); } catch (e) { fini(false); }
 }
 function rendrePortefeuille() {
   const ev = PF.map(p => ({p, ...evaluer(p)}));
   const cout = ev.reduce((s, e) => s + e.cout, 0);
   const valeur = ev.reduce((s, e) => s + (e.valeur ?? 0), 0);
   const net = ev.reduce((s, e) => s + (e.net ?? 0), 0);
-  $("#pf-resume").innerHTML = `<h2>${t("pf.titre")}<small>${t("pf.lignes", {n: PF.length})}</small></h2>
+  const al = alertesPortefeuille();
+  $("#pf-resume").innerHTML = `<div class="sub">${t("pf.net")}</div>
+    <div class="gros-net num ${cls(net)}">${(net > 0 ? "+" : "") + mad(net, 0)}</div>
+    <div class="sub num">${pct(cout ? net / cout * 100 : null)} · ${t("pf.lignes", {n: PF.length})}</div>
     <div class="kpis">
       <div class="kpi"><span>${t("pf.valeur")}</span><b class="num">${mad(valeur, 0)}</b></div>
-      <div class="kpi"><span>${t("pf.cout")}</span><b class="num">${mad(cout, 0)}</b></div>
-      <div class="kpi"><span>${t("pf.net")}</span><b class="num ${cls(net)}">${mad(net, 0)} · ${pct(cout ? net / cout * 100 : null)}</b></div>
-    </div>
-    <div class="btns"><button class="btn primary" id="b-ajout">${t("pf.ajouter")}</button></div>`;
-  const al = alertesPortefeuille();
-  $("#pf-alertes").innerHTML = al.length ? `<div class="card"><h2>${t("pf.alertes")}<small>${al.length}</small></h2>${htmlAlertes(al)}</div>` : "";
+      <div class="kpi"><span>${t("pf.cout")}</span><b class="num">${mad(cout, 0)}</b></div></div>
+    <div class="btns"><button class="btn primary" id="b-ajout" type="button">${t("pf.ajouter")}</button></div>`;
   $("#badge-pf").textContent = al.length; $("#badge-pf").classList.toggle("hidden", !al.length);
-  $("#alertes-accueil").innerHTML = al.length ? `<div class="card"><h2>${t("acc.alertes")}<small>${al.length}</small></h2>${htmlAlertes(al)}</div>` : "";
-  $("#pf-liste").innerHTML = `<h2>${t("pf.positions")}<small>${t("pf.toucher")}</small></h2>` + (ev.length ? `<table>
-    <tr><th>${t("pf.col.valeur")}</th><th class="r">${t("pf.col.qte")}</th><th class="r">${t("pf.col.cours")}</th><th class="r">${t("pf.col.net")}</th></tr>
-    ${ev.map(e => `<tr data-pos="${e.p.id}" style="cursor:pointer"><td><b>${esc(e.p.nom)}</b><div class="sub">${dateCourte(e.p.date)}</div></td>
-      <td class="r">${fmt(e.p.qte, 0)} × ${fmt(e.p.prix)}</td><td class="r">${fmt(e.cours)}<div class="${cls(e.f?.var_jour)}" style="font-size:12px">${pct(e.f?.var_jour)}</div></td>
-      <td class="r"><b class="${cls(e.net)}">${pct(e.netPct)}</b><div class="sub">${fmt(e.net, 0)}</div></td></tr>`).join("")}</table>`
-    : `<div class="empty">${t("pf.vide")}</div>`);
-  ["courtage", "taxe", "stop", "objectif", "capital", "risque"].forEach(k => $("#r-" + k).value = R[k]);
+  $("#bandeau-alertes").innerHTML = al.length ? `<button class="alerte-bandeau" type="button" data-goto="pf"><span>⚠ ${t("prop.alertes", {n: al.length})}</span><span aria-hidden="true">›</span></button>` : "";
+  $("#pf-liste").innerHTML = `<div style="font-weight:700">${t("pf.positions")} <span class="sub" style="font-weight:400">${t("pf.toucher")}</span></div>` + (ev.length
+    ? ev.map(e => `<div class="pos" data-pos="${e.p.id}" role="button" tabindex="0">
+        <div class="h"><span class="n">${esc(e.p.nom)}</span><b class="num ${cls(e.net)}">${pct(e.netPct)}</b></div>
+        <div class="h sub num"><span>${fmt(e.p.qte, 0)} × ${fmt(e.p.prix)} · ${dateCourte(e.p.date)}</span><span>${t("pf.col.cours")} ${fmt(e.cours)} · ${(e.net > 0 ? "+" : "") + fmt(e.net, 0)}</span></div>
+        ${al.filter(a => a.id === e.p.id).map(a => `<div class="alerte ${a.t}">${esc(a.txt)}</div>`).join("")}</div>`).join("")
+    : `<div class="vide" style="margin-top:8px">${t("pf.vide")}</div>`);
 }
 
 function optionsValeurs(sel) {
   return [...V].sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(f => `<option value="${f.isin}" ${f.isin === sel ? "selected" : ""}>${esc(f.nom)}</option>`).join("");
 }
-const boutonFermer = () => `<button class="close" aria-label="${t("fermer")}">×</button>`;
+const boutonFermer = () => `<button class="close" type="button" aria-label="${t("fermer")}">×</button>`;
 function formPosition(id, isinDefaut) {
   const p = PF.find(x => x.id === id) || {isin: isinDefaut || V[0]?.isin, qte: "", prix: PAR_ISIN[isinDefaut]?.cours ?? "", date: aujourdhui()};
   ouvrirPanneau(`${boutonFermer()}<h3>${id ? t("pos.modif") : t("pos.ajout")}</h3>
-    <label>${t("pos.valeur")}</label><select id="p-isin">${optionsValeurs(p.isin)}</select>
+    <label for="p-isin">${t("pos.valeur")}</label><select id="p-isin">${optionsValeurs(p.isin)}</select>
     <div class="form2">
-      <div><label>${t("pos.qte")}</label><input id="p-qte" type="number" inputmode="numeric" value="${p.qte}"></div>
-      <div><label>${t("pos.prix")}</label><input id="p-prix" type="number" step="0.01" inputmode="decimal" value="${p.prix}"></div>
-      <div><label>${t("pos.date")}</label><input id="p-date" type="date" value="${p.date}"></div>
-      <div><label>${t("pos.seuils")}</label><input id="p-seuils" dir="ltr" placeholder="${R.stop} / ${R.objectif}" value="${p.stop != null ? p.stop + " / " + p.objectif : ""}"></div>
+      <div><label for="p-qte">${t("pos.qte")}</label><input id="p-qte" type="number" inputmode="numeric" value="${p.qte}"></div>
+      <div><label for="p-prix">${t("pos.prix")}</label><input id="p-prix" type="number" step="0.01" inputmode="decimal" value="${p.prix}"></div>
+      <div><label for="p-date">${t("pos.date")}</label><input id="p-date" type="date" value="${p.date}"></div>
+      <div><label for="p-seuils">${t("pos.seuils")}</label><input id="p-seuils" dir="ltr" placeholder="${R.stop} / ${R.objectif}" value="${p.stop != null ? p.stop + " / " + p.objectif : ""}"></div>
     </div>
-    <div class="btns"><button class="btn primary" id="p-ok">${t("pos.ok")}</button>${id ? `<button class="btn danger" id="p-suppr">${t("pos.suppr")}</button>` : ""}</div>`);
+    <div class="btns"><button class="btn primary" id="p-ok" type="button">${t("pos.ok")}</button>
+      ${id ? `<button class="btn" id="p-fiche" type="button">${t("pos.fiche")}</button><button class="btn danger" id="p-suppr" type="button">${t("pos.suppr")}</button>` : ""}</div>`);
   $("#p-ok").onclick = () => {
     const isin = $("#p-isin").value, qte = +$("#p-qte").value, prix = +$("#p-prix").value;
     if (!(qte > 0 && prix > 0)) return alert(t("pos.manque"));
@@ -480,9 +519,12 @@ function formPosition(id, isinDefaut) {
     const pos = {id: id || Date.now().toString(36), isin, nom: PAR_ISIN[isin]?.nom || isin, qte, prix, date: $("#p-date").value,
       stop: isNaN(s[0]) ? null : s[0], objectif: isNaN(s[1]) ? null : s[1]};
     PF = id ? PF.map(x => x.id === id ? pos : x) : [...PF, pos];
-    sauver(); fermer(); rendrePortefeuille();
+    sauver(); fermer(); rendrePortefeuille(); rendreAujourdhui();
   };
-  if (id) $("#p-suppr").onclick = () => { if (confirm(t("pos.suppr.q"))) { PF = PF.filter(x => x.id !== id); sauver(); fermer(); rendrePortefeuille(); } };
+  if (id) {
+    $("#p-fiche").onclick = () => { fermer(); ouvrirFiche(p.isin); };
+    $("#p-suppr").onclick = () => { if (confirm(t("pos.suppr.q"))) { PF = PF.filter(x => x.id !== id); sauver(); fermer(); rendrePortefeuille(); rendreAujourdhui(); } };
+  }
 }
 
 /* ---------- Simulation ---------- */
@@ -493,35 +535,35 @@ function rendreSimulation() {
   });
   const valeurPos = pos.reduce((s, p) => s + p.valeur, 0);
   const total = SIM.cash + valeurPos, perf = (total / SIM.capital - 1) * 100;
-  $("#sim-resume").innerHTML = `<h2>${t("sim.titre")}<small>${t("sim.depart", {v: mad(SIM.capital, 0)})}</small></h2>
+  $("#sim-resume").innerHTML = `<div style="font-weight:700">${t("sim.titre")} <span class="sub" style="font-weight:400">${t("sim.depart", {v: mad(SIM.capital, 0)})}</span></div>
     <div class="kpis">
       <div class="kpi"><span>${t("sim.total")}</span><b class="num">${mad(total, 0)}</b></div>
       <div class="kpi"><span>${t("sim.perf")}</span><b class="num ${cls(perf)}">${pct(perf)}</b></div>
       <div class="kpi"><span>${t("sim.cash")}</span><b class="num">${mad(SIM.cash, 0)}</b></div>
     </div>
-    <div class="btns"><button class="btn primary" data-sim="">${t("sim.acheter")}</button><button class="btn" id="sim-reset">${t("sim.reset")}</button></div>`;
-  $("#sim-positions").innerHTML = `<h2>${t("sim.positions")}<small>${pos.length}</small></h2>` + (pos.length ? `<table>
-    <tr><th>${t("pf.col.valeur")}</th><th class="r">${t("sim.col.qte")}</th><th class="r">${t("pf.col.cours")}</th><th class="r">${t("pf.col.net")}</th><th></th></tr>
-    ${pos.map(p => `<tr><td><b>${esc(p.nom)}</b><div class="sub">${t("sim.pru", {v: fmt(p.cout / p.qte)})}</div></td><td class="r">${fmt(p.qte, 0)}</td>
-      <td class="r">${fmt(p.f?.cours)}</td><td class="r ${cls(p.net)}">${fmt(p.net, 0)}</td>
-      <td class="r"><button class="btn" data-simvente="${p.isin}" style="padding:5px 9px">${t("sim.vendre")}</button></td></tr>`).join("")}</table>`
-    : `<div class="empty">${t("sim.vide")}</div>`);
-  $("#sim-journal").innerHTML = `<h2>${t("sim.journal")}<small>${SIM.journal.length}</small></h2>` + (SIM.journal.length ? `<table>
-    <tr><th>${t("sim.col.date")}</th><th>${t("sim.col.op")}</th><th class="r">${t("sim.col.montant")}</th><th class="r">${t("sim.col.frais")}</th></tr>
+    <div class="btns"><button class="btn primary" data-sim="" type="button">${t("sim.acheter")}</button><button class="btn" id="sim-reset" type="button">${t("sim.reset")}</button></div>`;
+  $("#sim-positions").innerHTML = `<div style="font-weight:700">${t("sim.positions")} <span class="sub" style="font-weight:400">${pos.length}</span></div>` + (pos.length ? `<table>
+    <tr><th>${t("pf.col.valeur")}</th><th class="r">${t("sim.col.qte")}</th><th class="r">${t("pf.col.net")}</th><th class="r"></th></tr>
+    ${pos.map(p => `<tr><td><b>${esc(p.nom)}</b><div class="sub">${t("sim.pru", {v: fmt(p.cout / p.qte)})} · ${fmt(p.f?.cours)}</div></td><td class="r">${fmt(p.qte, 0)}</td>
+      <td class="r ${cls(p.net)}">${fmt(p.net, 0)}</td>
+      <td class="r"><button class="btn" data-simvente="${p.isin}" type="button" style="padding:6px 10px;min-height:40px">${t("sim.vendre")}</button></td></tr>`).join("")}</table>`
+    : `<div class="vide" style="margin-top:8px">${t("sim.vide")}</div>`);
+  $("#sim-journal").innerHTML = `<div style="font-weight:700">${t("sim.journal")} <span class="sub" style="font-weight:400">${SIM.journal.length}</span></div>` + (SIM.journal.length ? `<table>
+    <tr><th>${t("sim.col.date")}</th><th>${t("sim.col.op")}</th><th class="r">${t("sim.col.montant")}</th></tr>
     ${[...SIM.journal].reverse().slice(0, 50).map(o => `<tr><td>${dateCourte(o.date)}</td><td><span class="tag ${o.sens}">${t("sens." + o.sens)}</span> ${t("sim.op", {q: fmt(o.qte, 0), n: esc(o.nom), p: fmt(o.prix)})}${o.resultat != null ? `<div class="sub ${cls(o.resultat)}">${t("sim.resultat", {v: fmt(o.resultat, 0)})}</div>` : ""}</td>
-      <td class="r">${fmt(o.qte * o.prix, 0)}</td><td class="r">${fmt(o.frais, 0)}</td></tr>`).join("")}</table>` : `<div class="empty">${t("sim.journal.vide")}</div>`);
+      <td class="r">${fmt(o.qte * o.prix, 0)}<div class="sub">${t("sim.col.frais")} ${fmt(o.frais, 0)}</div></td></tr>`).join("")}</table>` : `<div class="vide" style="margin-top:8px">${t("sim.journal.vide")}</div>`);
 }
 function formSimulation(isin, sens = "achat", qteDefaut = "") {
   isin = isin || V[0]?.isin;
   const p = SIM.positions[isin];
   ouvrirPanneau(`${boutonFermer()}<h3>${sens === "achat" ? t("sim.achat.t") : t("sim.vente.t")}</h3>
-    <label>${t("pos.valeur")}</label><select id="s-isin" ${sens === "vente" ? "disabled" : ""}>${optionsValeurs(isin)}</select>
+    <label for="s-isin">${t("pos.valeur")}</label><select id="s-isin" ${sens === "vente" ? "disabled" : ""}>${optionsValeurs(isin)}</select>
     <div class="form2">
-      <div><label>${t("pos.qte")}${sens === "vente" ? t("sim.qte.max", {n: p?.qte ?? 0}) : ""}</label><input id="s-qte" type="number" inputmode="numeric" value="${sens === "vente" ? p?.qte ?? "" : qteDefaut}"></div>
-      <div><label>${t("sim.prix")}</label><input id="s-prix" type="number" step="0.01" inputmode="decimal" value="${PAR_ISIN[isin]?.cours ?? ""}"></div>
+      <div><label for="s-qte">${t("pos.qte")}${sens === "vente" ? t("sim.qte.max", {n: p?.qte ?? 0}) : ""}</label><input id="s-qte" type="number" inputmode="numeric" value="${sens === "vente" ? p?.qte ?? "" : qteDefaut}"></div>
+      <div><label for="s-prix">${t("sim.prix")}</label><input id="s-prix" type="number" step="0.01" inputmode="decimal" value="${PAR_ISIN[isin]?.cours ?? ""}"></div>
     </div>
     <div class="sub" id="s-calc" style="margin-top:8px"></div>
-    <div class="btns"><button class="btn primary" id="s-ok">${t("sim.valider")}</button></div>`);
+    <div class="btns"><button class="btn primary" id="s-ok" type="button">${t("sim.valider")}</button></div>`);
   const calc = () => {
     const q = +$("#s-qte").value, px = +$("#s-prix").value, m = q * px, fr = frais(m, sens);
     $("#s-calc").innerHTML = q > 0 && px > 0 ? t("sim.calc", {m: mad(m), f: mad(fr), s: sens === "achat" ? t("sim.debit") : t("sim.credit"),
@@ -547,11 +589,11 @@ function formSimulation(isin, sens = "achat", qteDefaut = "") {
       SIM.journal.push({date: aujourdhui(), sens, isin: is, nom, qte: q, prix: px, frais: fr, resultat: recu - coutPart});
       if (q === cur.qte) delete SIM.positions[is]; else SIM.positions[is] = {nom, qte: cur.qte - q, cout: cur.cout - coutPart};
     }
-    sauver(); fermer(); rendreSimulation(); montrer("simulation");
+    sauver(); fermer(); fermerCouches(); rendreSimulation(); montrer("pf"); segPf("sim");
   };
 }
 
-/* ---------- Ma stratégie : acheter près du plus bas, revendre à +X % ---------- */
+/* ---------- Ma méthode : acheter près du plus bas, revendre à +X % ---------- */
 const OBJ = [1, 1.5, 2, 3, 5], SEU = [2, 3, 5], DUR = [1, 3, 5, 10];
 function tauxFrais() { return {fa: R.courtage * 1.2 / 100, fv: R.courtage * 1.2 / 100 + R.taxe / 100}; }
 // Résultat net (%) d'une opération dont la variation brute est g %, frais d'achat et de vente inclus.
@@ -574,6 +616,8 @@ function planStrat(f, o = R.obj, s = R.seuil, montant = ligneMAD()) {
   return {prix, cible, stop, q, montant: q * prix, cout, limite,
     gain: q * cible - frais(q * cible, "vente") - cout, perte: q * stop - frais(q * stop, "vente") - cout};
 }
+const IDEES = () => V.filter(f => f.strategie?.zone).map(f => ({f, st: statsGrille(f)}))
+  .filter(x => x.st && x.st.ex >= 10).sort((a, b) => b.st.ev - a.st.ev);
 /* Le panier du matin : les meilleures idées (résultat net moyen positif), une ligne chacune. */
 function panier() {
   const choisies = IDEES().filter(x => x.st.ev > 0).slice(0, Math.max(1, R.lignes));
@@ -592,9 +636,9 @@ function htmlPanier() {
   if (!P.lignes.length) return "";
   const pcCap = x => pct(R.capital ? x / R.capital * 100 : null);
   const k = (lab, val, c = "", sub = "") => `<div class="kpi"><span>${lab}</span><b class="num ${c}">${val}</b>${sub ? `<span class="num">${sub}</span>` : ""}</div>`;
-  return `<div class="plan" style="margin-bottom:6px">
-    <b>${t("pan.titre")}</b> · ${t("pan.repart", {c: mad(R.capital, 0), n: R.lignes, l: mad(ligneMAD(), 0)})}
-    <div class="kpis" style="margin-top:8px">
+  return `<details class="plus"><summary>${t("pan.titre")} · ${mad(P.engage, 0)}</summary><div class="corps">
+    <div class="sub">${t("pan.repart", {c: mad(R.capital, 0), n: R.lignes, l: mad(ligneMAD(), 0)})}</div>
+    <div class="kpis">
       ${k(t("pan.engage", {n: P.nb}), mad(P.engage, 0))}
       ${k(t("pan.reste"), mad(P.reste, 0))}
       ${k(t("pan.max", {o: pct(R.obj)}), (P.gainMax >= 0 ? "+" : "") + mad(P.gainMax, 0), cls(P.gainMax), pcCap(P.gainMax))}
@@ -603,44 +647,103 @@ function htmlPanier() {
       ${k(t("pan.delai"), P.delai == null ? "—" : t("strat.n", {n: fmt(P.delai, 0)}))}
     </div>
     ${P.tropChers ? `<div class="sub" style="margin-top:6px">${t("pan.chers", {n: P.tropChers, l: mad(ligneMAD(), 0)})}</div>` : ""}
-    <div class="sub" style="margin-top:6px">${t("pan.note")}</div></div>`;
-}
-const IDEES = () => V.filter(f => f.strategie?.zone).map(f => ({f, st: statsGrille(f)}))
-  .filter(x => x.st && x.st.ex >= 10).sort((a, b) => b.st.ev - a.st.ev);
-
-function ligneIdee(x) {
-  const f = x.f, st = x.st, p = planStrat(f);
-  return `<div class="row" data-isin="${f.isin}">
-    <div><div class="n">${esc(f.nom)}</div>
-      <div class="meta num">${t("idee.ordre", {p: fmt(p.prix), c: fmt(p.cible), o: pct(R.obj)})}</div>
-      <div class="meta num">${t("idee.stats", {g: pc(st.pg, 0), d: st.med == null ? "—" : fmt(st.med, 0)})}</div>
-      <div class="meta num">${p.q > 0 ? t("idee.mad", {q: fmt(p.q, 0), m: mad(p.montant, 0), g: mad(p.gain, 0)}) : t("idee.cher", {l: mad(ligneMAD(), 0)})}</div></div>
-    ${spark(f.historique.slice(-60))}
-    <div class="px num"><span class="pill ${cls(st.ev)}" title="${t("idee.ev")}">${pct(st.ev)}</span></div></div>`;
-}
-const choix = (id, liste, val, suf) => `<select id="${id}">${liste.map(x => `<option value="${x}" ${x == val ? "selected" : ""}>${suf(x)}</option>`).join("")}</select>`;
-function rendreStrategie() {
-  const idees = IDEES(), bonnes = idees.filter(x => x.st.ev > 0);
-  $("#strategie").innerHTML = `<h2>${t("strat.titre")}<small>${t("strat.sous")}</small></h2>
-    <div class="form2">
-      <div><label>${t("strat.obj")}</label>${choix("s-obj", OBJ, R.obj, x => iso("+" + brut(x, x % 1 ? 1 : 0) + " %"))}</div>
-      <div><label>${t("strat.seuil")}</label>${choix("s-seuil", SEU, R.seuil, x => iso("-" + x + " %"))}</div>
-      <div><label>${t("strat.duree")}</label>${choix("s-duree", DUR, R.duree, x => x === 1 ? t("strat.jour") : t("strat.n", {n: x}))}</div>
-      <div><label>${t("strat.capital")}</label><input id="s-capital" type="number" step="1000" inputmode="numeric" value="${R.capital}"></div>
-      <div><label>${t("strat.lignes")}</label>${choix("s-lignes", [1, 2, 3, 4, 5, 6, 8, 10], R.lignes, x => t("strat.lignes.x", {n: x}))}</div>
-      <div><label>&nbsp;</label><div class="sub num" style="padding-top:10px">${t("strat.parligne", {l: mad(ligneMAD(), 0)})}</div></div>
-    </div>
-    <div style="margin-top:10px">${htmlPanier()}</div>
-    <div class="sub" style="margin-top:8px">${t("strat.frais", {f: pc((tauxFrais().fa + tauxFrais().fv) * 100), n: pct(net(R.obj))})}</div>
-    <div class="sub" style="margin-top:6px">${t("strat.regles")}</div>
-    <h2 style="margin-top:14px">${t("strat.liste", {n: idees.length})}<small>${t("strat.tri")}</small></h2>
-    ${idees.length ? idees.map(ligneIdee).join("") : `<div class="empty">${t("strat.vide")}</div>`}
-    ${idees.length && !bonnes.length ? `<div class="sub" style="color:var(--warn);margin-top:6px">${t("strat.aucune.pos")}</div>` : ""}`;
-  ["obj", "seuil", "duree", "lignes"].forEach(k => $("#s-" + k).onchange = e => { R[k] = +e.target.value; sauver(); rendreStrategie(); rendreAccueil(); });
-  $("#s-capital").onchange = e => { const v = +String(e.target.value).replace(",", "."); if (v > 0) { R.capital = v; sauver(); rendreStrategie(); rendreAccueil(); rendrePortefeuille(); rendreSuggestions(); } };
+    <div class="sub" style="margin-top:6px">${t("pan.note")}</div></div></details>`;
 }
 
-/* Simulateur : rejoue l'historique d'une valeur avec les règles d'un vrai carnet d'ordres. */
+/* ---------- Propositions du jour ----------
+   fav  : méthode positive sur 3 ans après frais, ou règle validée déclenchée ;
+   surv : dans la zone d'achat, mais résultat passé négatif ;
+   vente: signal de vente validé, ou sur une valeur détenue. */
+const ORDRE = {fav: 0, vente: 1, surv: 2};
+function raisonZone(f, st) {
+  const a = f.ecart_bas_52s != null && f.ecart_bas_52s <= 10 ? t("prop.r.bas", {b: pc(f.ecart_bas_52s, 1)}) : t("prop.r.baisse", {v: pct(f.var_5j)});
+  return a + " · " + t("prop.r.stats", {g: pc(st.pg, 0), ev: pct(st.ev)});
+}
+function propositions() {
+  const m = new Map(), detenues = new Set(PF.map(p => p.isin));
+  IDEES().forEach(x => m.set(x.f.isin, {f: x.f, st: x.st, statut: x.st.ev > 0 ? "fav" : "surv", raisons: [raisonZone(x.f, x.st)]}));
+  TOUTES_SUGG.filter(s => s.fiable && s.sens === "achat").forEach(s => {
+    const o = m.get(s.f.isin) || {f: s.f, st: statsGrille(s.f), statut: "fav", raisons: []};
+    o.statut = "fav"; o.raisons.unshift(t("prop.r.regle", {r: nomRegle(s.code), t: pc(s.taux_reussite, 0)}));
+    m.set(s.f.isin, o);
+  });
+  TOUTES_SUGG.filter(s => s.sens === "vente" && (s.fiable || detenues.has(s.f.isin))).forEach(s => {
+    const o = m.get(s.f.isin), r = t("prop.r.vente", {r: nomRegle(s.code), f: detenues.has(s.f.isin) ? t("prop.r.detenue") : ""});
+    if (!o) m.set(s.f.isin, {f: s.f, st: statsGrille(s.f), statut: "vente", raisons: [r]});
+    else { if (detenues.has(s.f.isin)) o.statut = "vente"; o.raisons.push(r); }
+  });
+  return [...m.values()].sort((a, b) => ORDRE[a.statut] - ORDRE[b.statut] || (b.st?.ev ?? -99) - (a.st?.ev ?? -99));
+}
+function carteProp(p) {
+  const f = p.f;
+  return `<button class="prop" type="button" data-isin="${f.isin}">
+    <span class="h"><span class="n">${esc(f.nom)}</span><span class="statut s-${p.statut}">${t("prop." + p.statut)}</span></span>
+    <span class="m num">${mad(f.cours)} · <span class="${cls(f.var_jour)}">${pct(f.var_jour)}</span></span>
+    <span class="r">${esc(p.raisons[0])}</span></button>`;
+}
+let toutesProps = false;
+function rendreAujourdhui() {
+  if (D.demo) $("#demo").classList.remove("hidden");
+  $("#seance").textContent = t("seance.du", {d: dateLongue(M.date_seance)});
+  const gen = new Date(D.genere_le);
+  const heure = d => iso(d.toLocaleTimeString("fr-FR", {hour: "2-digit", minute: "2-digit"}));
+  // Dernière mise à jour prévue : jours ouvrés, 07:00 et 15:00 UTC (+ 2 h de marge pour les retards de GitHub)
+  const attendue = (() => {
+    const tt = new Date(Date.now() - 2 * 3600e3);
+    for (let i = 0; i < 14; i++) for (const h of [15, 7]) {
+      const c = new Date(Date.UTC(tt.getUTCFullYear(), tt.getUTCMonth(), tt.getUTCDate() - i, h));
+      if (c <= tt && c.getUTCDay() % 6 !== 0) return c;
+    }
+    return null;
+  })();
+  if (!D.demo && attendue && gen < attendue - 60e3) {
+    $("#perime").textContent = t("perime", {d: iso(attendue.toLocaleDateString("fr-FR")), h: heure(attendue), s: dateCourte(M.date_seance)});
+    $("#perime").classList.remove("hidden");
+  }
+  const tot = (M.nb_hausse + M.nb_baisse + M.nb_stable) || 1;
+  $("#marche").innerHTML = `
+    <div style="min-width:0"><div class="sub">${t("auj.cap")} · ${t("auj.mds")}</div><div class="val num">${fmt(M.masi)}</div></div>
+    <div style="text-align:end">${M.masi_var != null ? `<span class="pill ${cls(M.masi_var)}">${pct(M.masi_var)}</span>` : ""}
+      <div class="sub num" style="margin-top:4px">${t("masi.ytd", {v: pct(M.masi_ytd)})}</div></div>
+    <div class="breadth" dir="ltr"><i style="width:${M.nb_hausse / tot * 100}%;background:var(--up)"></i><i style="width:${M.nb_stable / tot * 100}%;background:var(--muted);opacity:.35"></i><i style="width:${M.nb_baisse / tot * 100}%;background:var(--down)"></i></div>
+    <div class="legend num"><span class="up">${t("masi.hausse", {n: M.nb_hausse})}</span><span>${t("masi.stables", {n: M.nb_stable})}</span><span class="down">${t("masi.baisse", {n: M.nb_baisse})}</span></div>`;
+
+  $("#prop-reglage").innerHTML = t("prop.reglage", {o: pct(R.obj), s: pct(-R.seuil), d: R.duree === 1 ? t("strat.jour") : t("strat.n", {n: R.duree}), l: mad(ligneMAD(), 0)});
+  const P = propositions(), fav = P.filter(p => p.statut === "fav"), autres = P.filter(p => p.statut !== "fav");
+  let h = "";
+  if (!P.length) h = `<div class="card vide">${t("prop.vide")}</div>`;
+  else {
+    if (!fav.length) h += `<div class="honnete">${t("prop.aucune")}</div>`;
+    else h += htmlPanier();
+    const max = fav.length ? 3 : 5;
+    const visibles = [...fav, ...(toutesProps ? autres : autres.slice(0, max))];
+    h += `<div class="props">${visibles.map(carteProp).join("")}</div>`;
+    if (autres.length > max) h += `<button class="lien" type="button" id="b-props">${toutesProps ? t("prop.moins") : t("prop.plus", {n: autres.length - max})}</button>`;
+  }
+  h += `<div class="note">${t("prop.note")}</div>`;
+  $("#propositions").innerHTML = h;
+  const b = $("#b-props"); if (b) b.onclick = () => { toutesProps = !toutesProps; rendreAujourdhui(); };
+}
+
+function rendreListe() {
+  const q = $("#q").value.trim().toLowerCase();
+  const [cle, sens] = $("#tri").value.split(":");
+  const l = V.filter(f => !q || f.nom.toLowerCase().includes(q) || f.isin.toLowerCase().includes(q));
+  l.sort((a, b) => {
+    const x = a[cle], y = b[cle];
+    if (x == null) return 1; if (y == null) return -1;
+    const c = typeof x === "string" ? x.localeCompare(y, "fr") : x - y;
+    return sens === "asc" ? c : -c;
+  });
+  $("#liste-n").textContent = fmt(l.length, 0);
+  $("#liste").innerHTML = l.map(f => ligne(f)).join("") || `<div class="vide" style="padding:10px 0">${t("val.vide")}</div>`;
+}
+function rendrePied() {
+  const e = D.echecs || [];
+  $("#pied").innerHTML = `${t("pied.diag", {n: M.nb_diagnostiquees, t: M.nb_valeurs})}${e.length ? ` ${t("pied.indispo", {l: e.map(x => esc(x.nom)).join(", ")})}` : ""}<br>${t("pied.avert")}`;
+}
+
+/* ---------- Simulateur : rejoue l'historique d'une valeur avec un vrai carnet d'ordres ---------- */
 function simuler(H, o, s, d, zoneSeule) {
   const n = H.c.length, c = H.c, h = H.h.map((x, i) => x ?? c[i]), b = H.b.map((x, i) => x ?? c[i]), v = H.v.map(x => x || 0);
   const sig = new Array(n).fill(!zoneSeule);
@@ -672,9 +775,9 @@ function simuler(H, o, s, d, zoneSeule) {
   }
   return {ordres, ops, debut: H.d[0]};
 }
-function htmlSimulation(r, o) {
+function htmlSimulation(r) {
   const ops = r.ops, N = ops.length;
-  if (!N) return `<div class="empty">${t("sim2.aucune")}</div>`;
+  if (!N) return `<div class="vide">${t("sim2.aucune")}</div>`;
   const nb = k => ops.filter(x => x.issue === k).length;
   const nets = ops.map(x => x.net), moy = nets.reduce((a, x) => a + x, 0) / N;
   const delais = ops.filter(x => x.delai).map(x => x.delai).sort((a, b) => a - b);
@@ -691,35 +794,62 @@ function htmlSimulation(r, o) {
     <table style="margin-top:8px"><tr><th>${t("col.date")}</th><th>${t("sim2.issue")}</th><th class="r">${t("sim2.net.c")}</th></tr>
       ${ops.slice(-8).reverse().map(x => `<tr><td>${dateCourte(x.date)}</td><td>${t("issue." + x.issue)}${x.delai ? " · " + t("sim2.en", {n: x.delai}) : ""}</td><td class="r ${cls(x.net)}">${pct(x.net)}</td></tr>`).join("")}</table>`;
 }
+const choix = (id, liste, val, suf) => `<select id="${id}">${liste.map(x => `<option value="${x}" ${x == val ? "selected" : ""}>${suf(x)}</option>`).join("")}</select>`;
+const sufObj = x => iso("+" + brut(x, x % 1 ? 1 : 0) + " %"), sufSeu = x => iso("-" + x + " %"), sufDur = x => x === 1 ? t("strat.jour") : t("strat.n", {n: x});
 async function sectionSimulateur(f) {
-  const p = planStrat(f), st = statsGrille(f);
-  const zone = f.strategie?.zone;
   const box = $("#simu");
-  box.innerHTML = `<h2 style="font-size:15px;margin:18px 0 4px">${t("sim2.titre")}</h2>
-    <div class="plan num">${zone ? `<b>${t("sim2.zone.oui")}</b>` : t("sim2.zone.non")}<br>
-      ${t("sim2.plan", {p: fmt(p.prix), c: fmt(p.cible), o: pct(R.obj), s: fmt(p.stop), sp: pct(-R.seuil)})}<br>
-      ${p.q > 0 ? t("sim2.plan.mad", {q: fmt(p.q, 0), m: mad(p.montant, 0), g: mad(p.gain, 0), l: mad(p.perte, 0)}) + (p.limite ? t("plan.liq") : "") : t("sim2.trop.cher")}
-      ${st && st.ex ? `<br>${t("sim2.grille", {n: fmt(st.ex, 0), g: pc(st.pg, 0), ev: pct(st.ev)})}` : ""}</div>
-    <div class="form2" style="margin-top:6px">
-      <div><label>${t("strat.obj")}</label>${choix("f-obj", OBJ, R.obj, x => iso("+" + brut(x, x % 1 ? 1 : 0) + " %"))}</div>
-      <div><label>${t("strat.seuil")}</label>${choix("f-seuil", SEU, R.seuil, x => iso("-" + x + " %"))}</div>
-      <div><label>${t("strat.duree")}</label>${choix("f-duree", DUR, R.duree, x => x === 1 ? t("strat.jour") : t("strat.n", {n: x}))}</div>
-      <div><label>${t("sim2.quand")}</label><select id="f-zone"><option value="1">${t("sim2.quand.zone")}</option><option value="0">${t("sim2.quand.tout")}</option></select></div>
+  box.innerHTML = `<div style="font-weight:700;margin-top:16px">${t("sim2.titre")}</div>
+    <div class="form2">
+      <div><label for="f-obj">${t("strat.obj")}</label>${choix("f-obj", OBJ, R.obj, sufObj)}</div>
+      <div><label for="f-seuil">${t("strat.seuil")}</label>${choix("f-seuil", SEU, R.seuil, sufSeu)}</div>
+      <div><label for="f-duree">${t("strat.duree")}</label>${choix("f-duree", DUR, R.duree, sufDur)}</div>
+      <div><label for="f-zone">${t("sim2.quand")}</label><select id="f-zone"><option value="1">${t("sim2.quand.zone")}</option><option value="0">${t("sim2.quand.tout")}</option></select></div>
     </div>
-    <div id="simu-res" style="margin-top:8px"><div class="empty">…</div></div>`;
+    <div id="simu-res" style="margin-top:8px"><div class="vide">…</div></div>`;
   const H = await chargerHistorique(f.isin) || D.historique_demo?.[f.isin];
   const lancer = () => {
-    if (!H || !H.h) return $("#simu-res").innerHTML = `<div class="empty">${t("courbe.long")}</div>`;
+    if (!H || !H.h) return $("#simu-res").innerHTML = `<div class="vide">${t("courbe.long")}</div>`;
     $("#simu-res").innerHTML = htmlSimulation(simuler(H, +$("#f-obj").value, +$("#f-seuil").value, +$("#f-duree").value, $("#f-zone").value === "1"));
   };
   ["f-obj", "f-seuil", "f-duree", "f-zone"].forEach(id => $("#" + id).onchange = lancer);
   lancer();
 }
 
-/* ---------- Fiche d'une valeur ---------- */
+/* ---------- Fiche d'une valeur (plein écran) ---------- */
 async function chargerHistorique(isin) {
   try { const r = await fetch(`historique/${isin}.json`); if (r.ok) return await r.json(); } catch (e) {}
   return null;
+}
+function htmlProposition(f) {
+  const p = planStrat(f), st = statsGrille(f), zone = f.strategie?.zone;
+  const statut = propositions().find(x => x.f.isin === f.isin)?.statut || (zone ? "surv" : "hors");   // même statut que sur la carte
+  const verdict = !st || st.ex < 10 ? ["peu", t("fiche.v.peu")] : st.ev > 0 ? ["fav", t("fiche.v.pos")] : ["vente", t("fiche.v.neg")];
+  const regleAchat = (f.suggestions || []).find(s => s.sens === "achat" && s.fiable);
+  const ventes = (f.suggestions || []).filter(s => s.sens === "vente");
+  const pos = PF.filter(x => x.isin === f.isin);
+  let posTxt = "";
+  if (pos.length) {
+    const q = pos.reduce((a, x) => a + x.qte, 0), pm = pos.reduce((a, x) => a + x.qte * x.prix, 0) / q, e = evaluer({isin: f.isin, qte: q, prix: pm});
+    posTxt = `<div class="plan num">${t("fiche.position", {q: fmt(q, 0), p: fmt(pm), n: `<b class="${cls(e.net)}">${(e.net > 0 ? "+" : "") + mad(e.net, 0)}</b>`})}</div>`;
+  }
+  const k = (lab, val, c = "") => `<div><span>${lab}</span><b class="${c}">${val}</b></div>`;
+  return `<div class="card prop-txt">
+    <div class="verdict" style="margin-top:0"><h2>${t("fiche.prop")}</h2><span class="statut s-${statut}">${t("prop." + statut)}</span></div>
+    <p class="sub" style="margin-top:4px">${zone ? t("fiche.p.zone.oui") : t("fiche.p.zone.non")}</p>
+    <p class="num">${t("fiche.p.ordre", {p: fmt(p.prix), c: fmt(p.cible), o: pct(R.obj), s: fmt(p.stop), sp: pct(-R.seuil)})}</p>
+    <p class="num">${p.q > 0 ? t("fiche.p.ligne", {l: mad(ligneMAD(), 0), q: fmt(p.q, 0), g: "+" + mad(p.gain, 0), x: mad(p.perte, 0)}) + (p.limite ? t("plan.liq") : "") : t("fiche.p.cher", {l: mad(ligneMAD(), 0)})}</p>
+    ${st && st.ex ? `<p>${t("fiche.p.hist", {n: fmt(st.ex, 0)})}</p>
+      <div class="stats num">${k(t("fiche.p.obj"), pc(st.pg, 0))}${k(t("fiche.p.sorties"), pc(st.ps, 0))}${k(t("fiche.p.ech"), pc(st.pe, 0))}${k(t("fiche.p.net"), pct(st.ev), cls(st.ev))}</div>` : ""}
+    <div class="verdict"><span class="statut s-${verdict[0]}">${verdict[1]}</span><span class="sub">${t("prop.note")}</span></div>
+    ${regleAchat ? `<p class="up">${t("fiche.p.regle", {r: esc(nomRegle(regleAchat.code)), t: pc(regleAchat.taux_reussite, 0)})}</p>` : ""}
+    ${ventes.map(s => `<p class="down">${t("fiche.p.vente", {r: esc(nomRegle(s.code))})}</p>`).join("")}
+    ${posTxt}
+    <div class="btns col">
+      <button class="btn primary" type="button" data-ia="analyser" data-isin="${f.isin}">${t("ia.analyser")}</button>
+      <button class="btn" type="button" data-ia="verifier" data-isin="${f.isin}">${t("ia.verifier")}</button>
+      <button class="btn" type="button" id="f-pf">${t("fiche.ajouter")}</button>
+      <button class="btn" type="button" id="f-sim">${t("fiche.simuler")}</button>
+    </div></div>`;
 }
 async function ouvrirFiche(isin) {
   const f = PAR_ISIN[isin]; if (!f) return;
@@ -728,159 +858,147 @@ async function ouvrirFiche(isin) {
   const regles = (f.regles || []).map(r => `<tr><td>${r.actif ? "● " : ""}${esc(nomRegle(r.code))}<div class="sub">${t(r.sens + ".sens")} · ${r.duree} ${t("seances")}</div></td>
     <td class="r">${fmt(r.operations, 0)}</td><td class="r">${taux(r.taux_reussite)}</td>
     <td class="r ${cls(r.sens === "vente" ? -r.gain_moyen : r.gain_moyen)}">${pct(r.gain_moyen)}</td>
-    <td class="r">${taux(r.recent?.taux_reussite)}<div class="sub">${t("fiche.ops", {n: r.recent?.operations ?? 0})}</div></td>
-    <td class="r">${r.fiable ? `<span class="tag info">${t("oui")}</span>` : `<span class="tag" title="${esc(motif(r))}">${t("non")}</span>`}</td></tr>
-    ${!r.fiable && r.actif ? `<tr><td colspan="6" class="sub" style="border-top:0;padding-top:0">↳ ${esc(motif(r))}</td></tr>` : ""}`).join("");
+    <td class="r">${r.fiable ? `<span class="tag info">${t("oui")}</span>` : `<span class="tag">${t("non")}</span>`}</td></tr>
+    ${!r.fiable && r.actif ? `<tr><td colspan="5" class="sub" style="border-top:0;padding-top:0">↳ ${esc(motif(r))}</td></tr>` : ""}`).join("");
   const news = LANG === "ar"
     ? `https://news.google.com/search?q=${encodeURIComponent('"' + f.nom + '" بورصة')}&hl=ar&gl=MA&ceid=MA:ar`
     : `https://news.google.com/search?q=${encodeURIComponent('"' + f.nom + '" bourse')}&hl=fr&gl=MA&ceid=MA:fr`;
-  ouvrirPanneau(`
-    ${boutonFermer()}
-    <h3>${esc(f.nom)}</h3>
+  $("#fiche-titre").textContent = f.nom;
+  $("#fiche-corps").innerHTML = `
     <div class="sub">${t("fiche.seance", {i: f.isin, d: dateLongue(f.date)})}</div>
-    <div style="margin-top:10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
-      <span style="font-size:26px;font-weight:700" class="num">${mad(f.cours)}</span>
-      <span class="pill ${cls(f.var_jour)}">${pct(f.var_jour)}</span></div>
-    ${f.signaux.length ? `<div class="tags" style="margin-top:8px">${tags(f, 10)}</div>` : ""}
-    <div class="chips" style="margin:12px 0 0" id="periodes">
-      <button class="chip" data-p="250" aria-pressed="true">${t("fiche.1an")}</button>
-      <button class="chip" data-p="1250" aria-pressed="false">${t("fiche.5ans")}</button>
-      <button class="chip" data-p="0" aria-pressed="false">${t("fiche.tout")}</button></div>
+    <div class="prix" style="margin-top:4px"><span class="gros num">${mad(f.cours)}</span><span class="pill ${cls(f.var_jour)}">${pct(f.var_jour)}</span></div>
+    <div class="seg" style="margin-top:12px" id="periodes" role="group">
+      <button type="button" data-p="250" aria-pressed="true">${t("fiche.1an")}</button>
+      <button type="button" data-p="1250" aria-pressed="false">${t("fiche.5ans")}</button>
+      <button type="button" data-p="0" aria-pressed="false">${t("fiche.tout")}</button></div>
     <div id="courbe">${courbe(f.historique)}</div>
-    <div class="btns">
-      <button class="btn primary" data-ia="analyser" data-isin="${f.isin}">${t("ia.analyser")}</button>
-      <button class="btn" data-ia="verifier" data-isin="${f.isin}">${t("ia.verifier")}</button>
-      <button class="btn" id="f-pf">${t("fiche.pf")}</button>
-      <button class="btn" id="f-sim">${t("fiche.sim")}</button>
-      <a class="btn" href="${news}" target="_blank" rel="noopener" style="text-decoration:none">${t("fiche.news")}</a></div>
-    <div class="kpis">
-      ${k(t("k.5j"), pct(f.var_5j), cls(f.var_5j))}${k(t("k.1m"), pct(f.var_1m), cls(f.var_1m))}
-      ${k(t("k.ytd"), pct(f.var_ytd), cls(f.var_ytd))}${k(t("k.1a"), pct(f.var_1a), cls(f.var_1a))}
-      ${k(t("k.haut"), fmt(f.haut_52s))}${k(t("k.bas"), fmt(f.bas_52s))}
-      ${k(t("k.vol"), f.ratio_volume == null ? "—" : "×" + fmt(f.ratio_volume, 1))}${k(t("k.rsi"), fmt(f.rsi14, 0))}
-      ${k(t("k.mm200"), pct(f.ecart_mm200))}${k(t("k.vola"), f.volatilite == null ? "—" : pc(f.volatilite, 1))}
-    </div>
-    <h2 style="font-size:15px;margin:18px 0 4px">${t("fiche.ct")}</h2>
-    <div class="kpis">
-      ${k(t("k.amp"), f.amplitude_moy == null ? "—" : pc(f.amplitude_moy))}
-      ${k(t("k.cap"), f.capitaux_moy == null ? "—" : fmt(f.capitaux_moy / 1e6, 2) + " " + t("mmad"))}
-      ${k(t("k.actifs"), f.jours_actifs_pct == null ? "—" : pc(f.jours_actifs_pct, 0))}
-    </div>
-    <div class="sub" style="margin-top:6px">${t("fiche.ar", {v: pc(frais(100, "achat") + frais(100, "vente"))})}</div>
-    <div id="simu"></div>
-    <h2 style="font-size:15px;margin:18px 0 4px">${t("fiche.regles", {n: fmt(f.nb_seances, 0)})}</h2>
-    <table><tr><th>${t("col.regle")}</th><th class="r">${t("col.op")}</th><th class="r">${t("col.reussite")}</th><th class="r">${t("col.moy")}</th><th class="r">${t("col.recent")}</th><th class="r">${t("col.validee")}</th></tr>${regles}</table>
-    ${(f.evenements || []).length ? `<h2 style="font-size:15px;margin:18px 0 4px">${t("fiche.div")}</h2>
-      <table><tr><th>${t("col.date")}</th><th>${t("col.source")}</th><th class="r">${t("col.impact")}</th></tr>
-      ${f.evenements.map(e => `<tr><td>${dateCourte(e.date)}</td><td>${esc(t("source." + e.source))}${e.dividende ? ` · ${mad(e.dividende)}` : ""}</td><td class="r">${pct(-e.impact_pct)}</td></tr>`).join("")}</table>
-      <div class="sub" style="margin-top:4px">${t("fiche.div.note")}</div>` : ""}
-    <div class="sub" style="margin-top:6px">${t("fiche.legende", {d: dateCourte(f.premiere_seance)})}</div>
-    <p class="sub" style="margin-top:14px">${t("fiche.avert")}</p>`);
+    <div class="stack" style="margin-top:12px">
+      ${htmlProposition(f)}
+      <details class="plus"><summary>${t("fiche.plus")}</summary><div class="corps">
+        ${f.signaux.length ? `<div class="tags">${tags(f, 10)}</div>` : ""}
+        <div class="kpis">
+          ${k(t("k.5j"), pct(f.var_5j), cls(f.var_5j))}${k(t("k.1m"), pct(f.var_1m), cls(f.var_1m))}
+          ${k(t("k.ytd"), pct(f.var_ytd), cls(f.var_ytd))}${k(t("k.1a"), pct(f.var_1a), cls(f.var_1a))}
+          ${k(t("k.haut"), fmt(f.haut_52s))}${k(t("k.bas"), fmt(f.bas_52s))}
+          ${k(t("k.vol"), f.ratio_volume == null ? "—" : "×" + fmt(f.ratio_volume, 1))}${k(t("k.rsi"), fmt(f.rsi14, 0))}
+          ${k(t("k.mm200"), pct(f.ecart_mm200))}${k(t("k.vola"), f.volatilite == null ? "—" : pc(f.volatilite, 1))}
+          ${k(t("k.amp"), f.amplitude_moy == null ? "—" : pc(f.amplitude_moy))}
+          ${k(t("k.cap"), f.capitaux_moy == null ? "—" : fmt(f.capitaux_moy / 1e6, 2) + " " + t("mmad"))}
+          ${k(t("k.actifs"), f.jours_actifs_pct == null ? "—" : pc(f.jours_actifs_pct, 0))}
+        </div>
+        <div class="sub" style="margin-top:8px">${t("fiche.ar", {v: pc(frais(100, "achat") + frais(100, "vente"))})}</div>
+        <div id="simu"></div>
+        <div style="font-weight:700;margin-top:16px">${t("fiche.regles", {n: fmt(f.nb_seances, 0)})}</div>
+        <table><tr><th style="width:40%">${t("col.regle")}</th><th class="r">${t("col.op")}</th><th class="r">${t("col.reussite")}</th><th class="r">${t("col.moy")}</th><th class="r">${t("col.validee")}</th></tr>${regles}</table>
+        ${(f.evenements || []).length ? `<div style="font-weight:700;margin-top:16px">${t("fiche.div")}</div>
+          <table><tr><th>${t("col.date")}</th><th>${t("col.source")}</th><th class="r">${t("col.impact")}</th></tr>
+          ${f.evenements.map(e => `<tr><td>${dateCourte(e.date)}</td><td>${esc(t("source." + e.source))}${e.dividende ? ` · ${mad(e.dividende)}` : ""}</td><td class="r">${pct(-e.impact_pct)}</td></tr>`).join("")}</table>
+          <div class="sub" style="margin-top:4px">${t("fiche.div.note")}</div>` : ""}
+        <div class="sub" style="margin-top:8px">${t("fiche.legende", {d: dateCourte(f.premiere_seance)})}</div>
+        <p style="margin:12px 0 0"><a href="${news}" target="_blank" rel="noopener">${t("fiche.news")}</a></p>
+        <p class="sub" style="margin-top:10px">${t("fiche.avert")}</p>
+      </div></details>
+    </div>`;
+  ouvrirCouche("#fiche");
+  $("#fiche").scrollTop = 0;
   sectionSimulateur(f);
   $("#f-pf").onclick = () => formPosition(null, isin);
-  $("#f-sim").onclick = () => formSimulation(isin);
+  $("#f-sim").onclick = () => formSimulation(isin, "achat", planStrat(f).q || "");
   let complet = null;
   $("#periodes").onclick = async e => {
-    const c = e.target.closest(".chip"); if (!c) return;
-    $$("#periodes .chip").forEach(b => b.setAttribute("aria-pressed", b === c));
+    const c = e.target.closest("button"); if (!c) return;
+    $$("#periodes button").forEach(b => b.setAttribute("aria-pressed", b === c));
     const n = +c.dataset.p;
     if (n === 250) return $("#courbe").innerHTML = courbe(f.historique);
-    complet = complet || await chargerHistorique(isin);
+    complet = complet || await chargerHistorique(isin) || D.historique_demo?.[isin];
     if (!complet) return $("#courbe").innerHTML = courbe(f.historique) + `<div class="sub">${t("courbe.long")}</div>`;
     $("#courbe").innerHTML = courbe(n ? complet.c.slice(-n) : complet.c);
   };
 }
 
+/* ---------- Couches plein écran (fiche, réglages) : le bouton Retour du téléphone les ferme ---------- */
+const pile = [];
+function ouvrirCouche(sel) {
+  const el = $(sel);
+  if (!el.hidden) return;
+  el.hidden = false; pile.push(el); document.body.classList.add("fige");
+  try { history.pushState({couche: pile.length}, ""); } catch (e) {}
+}
+function retirerCouche() {
+  const el = pile.pop(); if (el) el.hidden = true;
+  if (!pile.length) document.body.classList.remove("fige");
+}
+function fermerCouche() { if (history.state && history.state.couche) history.back(); else retirerCouche(); }
+function fermerCouches() { const n = pile.length; while (pile.length) retirerCouche(); if (n && history.state && history.state.couche) { try { history.go(-n); } catch (e) {} } }
+window.addEventListener("popstate", () => { if (pile.length) retirerCouche(); });
+
 function ouvrirPanneau(html) { $("#panel").innerHTML = html; $("#sheet").classList.add("open"); $("#panel .close").onclick = fermer; }
 function fermer() { $("#sheet").classList.remove("open"); }
 
-/* ---------- Accueil et liste ---------- */
-function rendreAccueil() {
-  if (D.demo) $("#demo").classList.remove("hidden");
-  $("#seance").textContent = t("seance.du", {d: dateLongue(M.date_seance)});
-  const gen = new Date(D.genere_le);
-  const heure = d => iso(d.toLocaleTimeString("fr-FR", {hour: "2-digit", minute: "2-digit"}));
-  $("#maj").innerHTML = t("maj", {d: iso(gen.toLocaleDateString("fr-FR", {day: "2-digit", month: "2-digit"})), h: heure(gen)});
-  // Dernière mise à jour prévue : jours ouvrés, 07:00 et 15:00 UTC (+ 2 h de marge pour les retards de GitHub)
-  const attendue = (() => {
-    const tt = new Date(Date.now() - 2 * 3600e3);
-    for (let i = 0; i < 14; i++) {
-      for (const h of [15, 7]) {
-        const c = new Date(Date.UTC(tt.getUTCFullYear(), tt.getUTCMonth(), tt.getUTCDate() - i, h));
-        if (c <= tt && c.getUTCDay() % 6 !== 0) return c;
-      }
-    }
-    return null;
-  })();
-  if (!D.demo && attendue && gen < attendue - 60e3) {
-    $("#perime").textContent = t("perime", {d: iso(attendue.toLocaleDateString("fr-FR")), h: heure(attendue), s: dateCourte(M.date_seance)});
-    $("#perime").classList.remove("hidden");
-  }
-  const tot = (M.nb_hausse + M.nb_baisse + M.nb_stable) || 1;
-  $("#masi").innerHTML = `
-    <div><div class="sub">${t("indice.cap")}</div><div class="val num">${fmt(M.masi)}</div></div>
-    <div style="text-align:end">${M.masi_var != null ? `<span class="pill ${cls(M.masi_var)}">${pct(M.masi_var)}</span>` : ""}
-      <div class="sub num" style="margin-top:4px">${t("masi.ytd", {v: pct(M.masi_ytd)})}</div></div>
-    <div class="breadth" dir="ltr"><i style="width:${M.nb_hausse / tot * 100}%;background:var(--up)"></i><i style="width:${M.nb_stable / tot * 100}%;background:var(--muted);opacity:.4"></i><i style="width:${M.nb_baisse / tot * 100}%;background:var(--down)"></i></div>
-    <div class="legend num"><span class="up">${t("masi.hausse", {n: M.nb_hausse})}</span><span>${t("masi.stables", {n: M.nb_stable})}</span><span class="down">${t("masi.baisse", {n: M.nb_baisse})}</span></div>`;
-
-  const actives = V.filter(f => f.a_jour && f.var_jour != null);
-  const parVar = [...actives].sort((a, b) => a.var_jour - b.var_jour);
-  const validees = TOUTES_SUGG.filter(s => s.fiable && s.sens === "achat").slice(0, 4);
-  const bc = D.bilan_reconstitue?.achats_clos;
-  const idees = IDEES().filter(x => x.st.ev > 0).slice(0, Math.max(1, R.lignes));
-  $("#resume").innerHTML =
-    `<div class="card"><h2>${t("idee.titre")}<small>${t("idee.reglage", {o: pct(R.obj), s: pct(-R.seuil), d: R.duree === 1 ? t("strat.jour") : t("strat.n", {n: R.duree})})}</small></h2>
-      ${idees.length ? htmlPanier() + idees.map(ligneIdee).join("") : `<div class="empty">${t("idee.vide")}</div>`}
-      <div class="btns"><button class="btn" data-goto="suggestions">${t("idee.regler")}</button></div></div>` +
-    bloc(t("bloc.baisses"), t("bloc.seance"), parVar.filter(f => f.var_jour < 0).slice(0, 8)) +
-    `<div class="card"><h2>${t("acc.sugg")}<small>${t("acc.sugg.note")}</small></h2>${validees.length
-      ? validees.map(s => ligne(s.f, t("acc.sugg.x", {r: esc(nomRegle(s.code)), t: pc(s.taux_reussite, 0)}))).join("") + `<div class="btns"><button class="btn" data-goto="suggestions">${t("acc.sugg.tout")}</button></div>`
-      : `<div class="empty">${t("acc.sugg.vide")}</div>`}
-      ${bc?.nombre ? `<div class="sub num" style="margin-top:8px">${t("acc.bilan", {n: bc.nombre, g: pc(bc.gagnantes_pct, 0), m: pct(bc.moyenne_pct)})}</div>` : ""}</div>` +
-    bloc(t("bloc.hausses"), t("bloc.seance"), parVar.filter(f => f.var_jour > 0).reverse().slice(0, 8)) +
-    bloc(t("bloc.volumes"), t("bloc.volumes.note"), actives.filter(f => f.ratio_volume >= 2.5).sort((a, b) => b.ratio_volume - a.ratio_volume).slice(0, 8), f => t("bloc.vol", {v: fmt(f.ratio_volume, 1)})) +
-    bloc(t("bloc.bas"), t("bloc.bas.note"), V.filter(f => f.ecart_bas_52s != null && f.ecart_bas_52s <= 5).sort((a, b) => a.ecart_bas_52s - b.ecart_bas_52s).slice(0, 8), f => t("bloc.bas.x", {v: pct(f.ecart_bas_52s)})) +
-    bloc(t("bloc.haut"), t("bloc.haut.note"), V.filter(f => f.ecart_haut_52s != null && f.ecart_haut_52s >= -5).sort((a, b) => b.ecart_haut_52s - a.ecart_haut_52s).slice(0, 8), f => t("bloc.haut.x", {v: pct(f.ecart_haut_52s)}));
-}
-
-let filtreV = "tout";
-function rendreListe() {
-  const q = $("#q").value.trim().toLowerCase();
-  const [cle, sens] = $("#tri").value.split(":");
-  let l = V.filter(f => !q || f.nom.toLowerCase().includes(q));
-  if (filtreV === "baisse") l = l.filter(f => f.var_jour < 0);
-  if (filtreV === "hausse") l = l.filter(f => f.var_jour > 0);
-  if (filtreV === "signal") l = l.filter(f => f.signaux.length || (f.suggestions || []).length);
-  l.sort((a, b) => {
-    const x = a[cle], y = b[cle];
-    if (x == null) return 1; if (y == null) return -1;
-    const c = typeof x === "string" ? x.localeCompare(y, "fr") : x - y;
-    return sens === "asc" ? c : -c;
+/* ---------- Réglages ---------- */
+function rendreReglages() {
+  const inp = (k, step, mode = "decimal") => `<input id="r-${k}" data-r="${k}" type="number" step="${step}" inputmode="${mode}" value="${R[k]}">`;
+  $("#reglages-corps").innerHTML = `
+    <h2>${t("reg.strat")}</h2>
+    <div class="card">
+      <div class="form2">
+        <div><label for="r-obj">${t("strat.obj")}</label>${choix("r-obj", OBJ, R.obj, sufObj)}</div>
+        <div><label for="r-seuil">${t("strat.seuil")}</label>${choix("r-seuil", SEU, R.seuil, sufSeu)}</div>
+        <div><label for="r-duree">${t("strat.duree")}</label>${choix("r-duree", DUR, R.duree, sufDur)}</div>
+        <div><label for="r-lignes">${t("strat.lignes")}</label>${choix("r-lignes", [1, 2, 3, 4, 5, 6, 8, 10], R.lignes, x => t("strat.lignes.x", {n: x}))}</div>
+        <div style="grid-column:1/-1"><label for="r-capital">${t("strat.capital")}</label>${inp("capital", 1000, "numeric")}</div>
+      </div>
+      <div class="sub num" style="margin-top:8px">${t("strat.parligne", {l: mad(ligneMAD(), 0)})} · ${t("strat.frais", {f: pc((tauxFrais().fa + tauxFrais().fv) * 100), n: pct(net(R.obj))})}</div>
+      <details style="margin-top:8px"><summary class="lien" style="cursor:pointer;min-height:40px;padding:6px 0">${t("reg.comment")}</summary><div class="sub">${t("strat.regles")}</div></details>
+    </div>
+    <h2>${t("reg.frais.t")}</h2>
+    <div class="card"><div class="form2">
+      <div><label for="r-courtage">${t("reg.courtage")}</label>${inp("courtage", 0.01)}</div>
+      <div><label for="r-taxe">${t("reg.taxe")}</label>${inp("taxe", 0.01)}</div></div>
+      <div class="sub" style="margin-top:6px">${t("reg.tva")}</div></div>
+    <h2>${t("reg.alertes.t")}</h2>
+    <div class="card"><div class="form2">
+      <div><label for="r-stop">${t("reg.stop")}</label>${inp("stop", 0.5)}</div>
+      <div><label for="r-objectif">${t("reg.objectif")}</label>${inp("objectif", 0.5)}</div>
+      <div style="grid-column:1/-1"><label for="r-risque">${t("reg.risque")}</label>${inp("risque", 0.25)}</div></div></div>
+    <h2>${t("reg.langue")}</h2>
+    <div class="seg" role="group"><button type="button" data-langue="fr" aria-pressed="${LANG === "fr"}">Français</button><button type="button" data-langue="ar" aria-pressed="${LANG === "ar"}">العربية</button></div>
+    <h2>${t("reg.ia")}</h2>
+    <div class="card" id="reg-ia"></div>
+    <h2>${t("reg.sauv")}</h2>
+    <div class="card"><div class="sub">${t("reg.sauv.note")}</div>
+      <div class="btns"><button class="btn" id="b-export" type="button">${t("reg.export")}</button><button class="btn" id="b-import" type="button">${t("reg.import")}</button></div></div>
+    <h2>${t("reg.install")}</h2>
+    <div class="card" id="reg-install"></div>
+    <h2>${t("reg.apropos")}</h2>
+    <div class="card sub">${t("pied.diag", {n: M.nb_diagnostiquees, t: M.nb_valeurs})}<br><a href="diagnostic.xlsx">${t("pied.excel")}</a><br><br>${t("pied.avert")}</div>`;
+  $$("#reglages-corps [data-r]").forEach(el => el.onchange = e => {
+    const v = parseFloat(String(e.target.value).replace(",", "."));
+    if (!isNaN(v) && (v > 0 || ["stop", "taxe"].includes(e.target.dataset.r))) { R[e.target.dataset.r] = v; sauver(); rendreDonnees(); rendreReglages(); }
   });
-  $("#liste").innerHTML = `<h2>${t("val.titre", {n: l.length})}<small>${t("val.toucher")}</small></h2>` +
-    (l.map(f => ligne(f)).join("") || `<div class="empty">${t("val.vide")}</div>`);
+  ["obj", "seuil", "duree", "lignes"].forEach(k => $("#r-" + k).onchange = e => { R[k] = +e.target.value; sauver(); rendreDonnees(); rendreReglages(); });
+  $("#b-export").onclick = () => {
+    const txt = JSON.stringify({reglages: R, portefeuille: PF, simulation: SIM});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([txt], {type: "application/json"}));
+    a.download = `bvc-matin-sauvegarde-${aujourdhui()}.json`; a.click();
+  };
+  $("#b-import").onclick = () => {
+    const i = document.createElement("input"); i.type = "file"; i.accept = "application/json,.json";
+    i.onchange = async () => {
+      try {
+        const d = JSON.parse(await i.files[0].text());
+        if (!confirm(t("reg.remplacer"))) return;
+        R = Object.assign(R, d.reglages || {}); PF = d.portefeuille || []; SIM = d.simulation || SIM;
+        sauver(); rendreDonnees(); rendreReglages();
+      } catch (e) { alert(t("reg.illisible")); }
+    };
+    i.click();
+  };
+  rendreInstall();
+  window.BVC_IA?.cles($("#reg-ia"));
 }
 
-function rendrePied() {
-  const e = D.echecs || [];
-  $("#pied").innerHTML = `${t("pied.diag", {n: M.nb_diagnostiquees, t: M.nb_valeurs})}
-    ${e.length ? `<br>${t("pied.indispo", {l: e.map(x => esc(x.nom)).join(", ")})}` : ""}
-    <br><a href="diagnostic.xlsx">${t("pied.excel")}</a>
-    <br><br>${t("pied.avert")}`;
-}
-
-function textesFixes() {
-  document.documentElement.lang = LANG;
-  document.documentElement.dir = LANG === "ar" ? "rtl" : "ltr";
-  $$("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
-  $$("[data-i18n-html]").forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
-  $$("[data-i18n-ph]").forEach(el => el.placeholder = t(el.dataset.i18nPh));
-  $("#b-langue").textContent = t("langue.bouton");
-  $("#b-ia").textContent = t("ia.bouton"); $("#b-ia").title = t("ia.titre");
-  $("#b-langue").setAttribute("aria-label", t("langue.titre"));
-  $("#b-langue").title = t("langue.titre");
-}
 /* ---------- Installation sur l'écran d'accueil (Android, iPhone, PC) ---------- */
 let invitationInstall = null;
 const estInstallee = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
@@ -888,38 +1006,70 @@ const estIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator
 const estSafariIOS = () => estIOS() && !/crios|fxios|edgios/i.test(navigator.userAgent);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); invitationInstall = e; rendreInstall(); });
 window.addEventListener("appinstalled", () => { invitationInstall = null; rendreInstall(); });
+function corpsInstall(masquer) {
+  const m = masquer ? `<button class="btn" type="button" data-inst-masquer="1">${t("inst.masquer")}</button>` : "";
+  if (invitationInstall) return `<div class="btns"><button class="btn primary" type="button" data-installer="1">${t("inst.bouton")}</button>${m}</div>`;
+  const etapes = estIOS() ? (estSafariIOS() ? t("inst.ios") : t("inst.ios.autre")) : t("inst.android");
+  return `<ol>${etapes.split("|").map(x => `<li>${x}</li>`).join("")}</ol>${m ? `<div class="btns">${m}</div>` : ""}`;
+}
 function rendreInstall() {
   const el = $("#installer");
-  if (estInstallee() || store.get("install_masque", false)) { el.classList.add("hidden"); return; }
-  let corps;
-  if (invitationInstall) corps = `<div class="btns"><button class="btn primary" id="b-installer">${t("inst.bouton")}</button><button class="btn" id="b-inst-masquer">${t("inst.masquer")}</button></div>`;
-  else if (estIOS()) corps = `<ol>${(estSafariIOS() ? t("inst.ios") : t("inst.ios.autre")).split("|").map(x => `<li>${x}</li>`).join("")}</ol><div class="btns"><button class="btn" id="b-inst-masquer">${t("inst.masquer")}</button></div>`;
-  else corps = `<ol>${t("inst.android").split("|").map(x => `<li>${x}</li>`).join("")}</ol><div class="btns"><button class="btn" id="b-inst-masquer">${t("inst.masquer")}</button></div>`;
-  el.innerHTML = `<h2>${t("inst.titre")}</h2><div class="sub">${t("inst.texte")}</div>${corps}`;
-  el.classList.remove("hidden");
-  const b = $("#b-installer");
-  if (b) b.onclick = async () => { invitationInstall.prompt(); try { await invitationInstall.userChoice; } catch (e) {} invitationInstall = null; rendreInstall(); };
-  $("#b-inst-masquer").onclick = () => { store.set("install_masque", true); rendreInstall(); };
+  if (estInstallee() || store.get("install_masque", false)) el.classList.add("hidden");
+  else { el.innerHTML = `<div style="font-weight:700">${t("inst.titre")}</div><div class="sub">${t("inst.texte")}</div>${corpsInstall(true)}`; el.classList.remove("hidden"); }
+  const r = $("#reg-install");
+  if (r) r.innerHTML = estInstallee() ? `<div class="sub">${t("reg.install.ok")}</div>` : `<div class="sub">${t("inst.texte")}</div>${corpsInstall(false)}`;
 }
 
+/* ---------- Rendu général et navigation ---------- */
+function textesFixes() {
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG === "ar" ? "rtl" : "ltr";
+  $$("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
+  $$("[data-i18n-html]").forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+  $$("[data-i18n-ph]").forEach(el => el.placeholder = t(el.dataset.i18nPh));
+  $$("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
+  $("#b-langue").textContent = t("langue.bouton");
+  $("#b-langue").setAttribute("aria-label", t("langue.titre"));
+}
+// Tout ce qui dépend des données et des réglages (sans les textes fixes).
+function rendreDonnees() {
+  rendreAujourdhui(); rendreListe(); rendreSuggestions(); rendreBilan(); rendrePortefeuille(); rendreSimulation(); rendrePied();
+}
 function toutRendre() {
-  textesFixes(); window.BVC_IA?.langue(); rendreInstall(); rendreAccueil(); rendreStrategie(); rendreSuggestions(); rendreBilan(); rendrePortefeuille(); rendreSimulation(); rendreListe(); rendrePied();
+  textesFixes(); rendreInstall(); rendreDonnees();
+  if (!$("#reglages").hidden) rendreReglages();
+  window.BVC_IA?.langue();
 }
-
+let VUE = "auj";
 function montrer(v) {
+  VUE = v;
   $$("nav.bas button").forEach(b => b.setAttribute("aria-selected", b.dataset.v === v));
-  ["accueil", "suggestions", "portefeuille", "simulation", "valeurs"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  ["auj", "pf", "ia"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  document.body.classList.toggle("vue-ia", v === "ia");
+  if (v === "ia") window.BVC_IA?.afficher();
   window.scrollTo(0, 0);
 }
+function segPf(s) {
+  $$("#seg-pf button").forEach(b => b.setAttribute("aria-pressed", b.dataset.seg === s));
+  $("#pf-reel").classList.toggle("hidden", s !== "reel"); $("#pf-sim").classList.toggle("hidden", s !== "sim");
+}
+function changerLangue(l) { LANG = l; store.set("langue", LANG); fermer(); toutRendre(); }
 
 /* ---------- Événements ---------- */
 document.addEventListener("click", e => {
   const el = e.target;
-  if (el.closest("#b-ia")) { window.BVC_IA?.ouvrir(); return; }
-  const ia = el.closest("[data-ia]"); if (ia) { fermer(); return window.BVC_IA?.[ia.dataset.ia](ia.dataset.isin); }
-  if (el.closest("#b-langue")) { LANG = LANG === "ar" ? "fr" : "ar"; store.set("langue", LANG); fermer(); return toutRendre(); }
-  const nav = el.closest("nav.bas button"); if (nav) return montrer(nav.dataset.v);
-  const go = el.closest("[data-goto]"); if (go) return montrer(go.dataset.goto);
+  if (el.closest("[data-fermer-couche]")) return fermerCouche();
+  if (el.closest("#b-reglages") || el.closest("[data-reglages]")) { rendreReglages(); return ouvrirCouche("#reglages"); }
+  const ia = el.closest("[data-ia]"); if (ia) { fermer(); fermerCouches(); montrer("ia"); return window.BVC_IA?.[ia.dataset.ia](ia.dataset.isin); }
+  if (el.closest("#b-langue")) return changerLangue(LANG === "ar" ? "fr" : "ar");
+  const lg = el.closest("[data-langue]"); if (lg) return changerLangue(lg.dataset.langue);
+  if (el.closest("[data-installer]") && invitationInstall) {
+    invitationInstall.prompt(); Promise.resolve(invitationInstall.userChoice).catch(() => {}).finally(() => { invitationInstall = null; rendreInstall(); }); return;
+  }
+  if (el.closest("[data-inst-masquer]")) { store.set("install_masque", true); return rendreInstall(); }
+  const nav = el.closest("nav.bas button"); if (nav) { fermerCouches(); return montrer(nav.dataset.v); }
+  const sg = el.closest("#seg-pf button"); if (sg) return segPf(sg.dataset.seg);
+  const go = el.closest("[data-goto]"); if (go) { segPf("reel"); return montrer(go.dataset.goto); }
   const sim = el.closest("[data-sim]"); if (sim) return formSimulation(sim.dataset.sim, "achat", sim.dataset.qte || "");
   const sv = el.closest("[data-simvente]"); if (sv) return formSimulation(sv.dataset.simvente, "vente");
   const det = el.closest("[data-detail]"); if (det) return ouvrirFiche(det.dataset.detail);
@@ -931,37 +1081,17 @@ document.addEventListener("click", e => {
     if (!(cap > 0)) return;
     SIM = {capital: cap, cash: cap, positions: {}, journal: []}; sauver(); return rendreSimulation();
   }
-  const r = el.closest(".row, .alerte, .row-bilan"); if (r && r.dataset.isin) return ouvrirFiche(r.dataset.isin);
+  const r = el.closest(".row, .prop, .row-bilan"); if (r && r.dataset.isin) return ouvrirFiche(r.dataset.isin);
   const cs = el.closest("#f-sugg .chip");
   if (cs) { filtreSugg = cs.dataset.f; $$("#f-sugg .chip").forEach(b => b.setAttribute("aria-pressed", b === cs)); return rendreSuggestions(); }
-  const cv = el.closest("#f-valeurs .chip");
-  if (cv) { filtreV = cv.dataset.f; $$("#f-valeurs .chip").forEach(b => b.setAttribute("aria-pressed", b === cv)); return rendreListe(); }
   if (el === $("#sheet")) fermer();
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape") fermer(); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { if ($("#sheet").classList.contains("open")) fermer(); else if (pile.length) fermerCouche(); }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".row[role=button], .pos[role=button]")) { e.preventDefault(); e.target.click(); }
+});
 $("#q").addEventListener("input", rendreListe);
 $("#tri").addEventListener("change", rendreListe);
-["courtage", "taxe", "stop", "objectif", "capital", "risque"].forEach(k => $("#r-" + k).addEventListener("change", e => {
-  const v = parseFloat(String(e.target.value).replace(",", ".")); if (!isNaN(v)) { R[k] = v; sauver(); rendrePortefeuille(); rendreSimulation(); rendreSuggestions(); rendreStrategie(); rendreAccueil(); }
-}));
-$("#b-export").onclick = () => {
-  const txt = JSON.stringify({reglages: R, portefeuille: PF, simulation: SIM});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([txt], {type: "application/json"}));
-  a.download = `bvc-matin-sauvegarde-${aujourdhui()}.json`; a.click();
-};
-$("#b-import").onclick = () => {
-  const i = document.createElement("input"); i.type = "file"; i.accept = "application/json,.json";
-  i.onchange = async () => {
-    try {
-      const d = JSON.parse(await i.files[0].text());
-      if (!confirm(t("reg.remplacer"))) return;
-      R = Object.assign(R, d.reglages || {}); PF = d.portefeuille || []; SIM = d.simulation || SIM;
-      sauver(); rendrePortefeuille(); rendreSimulation();
-    } catch (e) { alert(t("reg.illisible")); }
-  };
-  i.click();
-};
 
 toutRendre();
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});

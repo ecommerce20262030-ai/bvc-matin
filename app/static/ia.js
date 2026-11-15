@@ -39,7 +39,11 @@ const TX = {
     ordTitre: "Vérifier un ordre", ordVal: "Valeur", achat: "Achat", vente: "Vente", prix: "Prix limite (MAD)", qte: "Quantité", obj: "Objectif %", seuil: "Sortie %",
     ordGo: "Vérifier avec l'IA", ordManque: "Indiquez la valeur, le prix et la quantité.",
     ordMsg: o => `Vérifie mon ordre avant que je le passe : ${o.sens === "achat" ? "ACHAT" : "VENTE"} de ${o.qte} ${o.val} à ${o.prix} MAD (objectif +${o.obj} %, sortie à -${o.seuil} %). Donne les faits, les frais, les risques et ce qui plaide pour et contre. La décision m'appartient.`,
-    ficheQ: n => `Analyse ${n} pour moi : situation, risques et ce que dit l'historique de ma stratégie.`
+    ficheQ: n => `Analyse ${n} pour moi : situation, risques et ce que dit l'historique de ma stratégie.`,
+    onbTitre: "Activer l'IA en 2 minutes", onb1: "1. Clé gratuite Gemini", onb1Aide: "Ouvrez aistudio.google.com/apikey avec votre compte Google, touchez « Create API key », copiez la clé et collez-la ici.",
+    onb2: "2. Optionnel : clé Claude (payante)", onb2Aide: "Prend le relais quand le quota gratuit du jour est épuisé. À créer sur console.anthropic.com.",
+    onbGo: "Enregistrer et tester", testEnCours: "Test en cours…", gerer: "Les clés se gèrent ensuite dans Réglages.",
+    statut: "État des clés"
   },
   ar: {
     titre: "المستشار الذكي", fermer: "إغلاق", reglages: "مفاتيح الذكاء", ph: "اكتب سؤالك…",
@@ -66,7 +70,11 @@ const TX = {
     ordTitre: "مراجعة أمر", ordVal: "السهم", achat: "شراء", vente: "بيع", prix: "السعر المحدد (درهم)", qte: "الكمية", obj: "الهدف %", seuil: "الخروج %",
     ordGo: "راجع مع الذكاء الاصطناعي", ordManque: "أدخل السهم والسعر والكمية.",
     ordMsg: o => `راجع أمري قبل أن أنفذه: ${o.sens === "achat" ? "شراء" : "بيع"} ${o.qte} من ${o.val} بسعر ${o.prix} درهم (الهدف ‎+${o.obj}%‎، الخروج ‎-${o.seuil}%‎). أعطني الوقائع والعمولات والمخاطر وما يؤيد وما يعارض. القرار لي.`,
-    ficheQ: n => `حلل لي ${n}: الوضعية، المخاطر، وما يقوله تاريخ استراتيجيتي.`
+    ficheQ: n => `حلل لي ${n}: الوضعية، المخاطر، وما يقوله تاريخ استراتيجيتي.`,
+    onbTitre: "فعّل الذكاء الاصطناعي في دقيقتين", onb1: "1. مفتاح Gemini المجاني", onb1Aide: "افتح aistudio.google.com/apikey بحساب Google، اضغط «Create API key»، انسخ المفتاح والصقه هنا.",
+    onb2: "2. اختياري: مفتاح Claude (مدفوع)", onb2Aide: "يتولى الأمر عند نفاد الحصة المجانية لليوم. يُنشأ في console.anthropic.com.",
+    onbGo: "حفظ واختبار", testEnCours: "جارٍ الاختبار…", gerer: "تُدار المفاتيح بعد ذلك من الإعدادات.",
+    statut: "حالة المفاتيح"
   }
 };
 const x = (k, ...a) => { const v = (TX[LANG] || TX.fr)[k] ?? TX.fr[k]; return typeof v === "function" ? v(...a) : v; };
@@ -337,57 +345,42 @@ async function repondre(hist, surOutil) {
   throw new ErrIA("sanscle");
 }
 
-/* ---------- Interface ---------- */
+
+/* ---------- Interface : onglet « IA » de l'application ---------- */
 const css = `
-.ia-fab{position:fixed;z-index:21;inset-inline-end:max(16px,env(safe-area-inset-right));bottom:calc(72px + env(safe-area-inset-bottom));
-  width:54px;height:54px;border-radius:50%;border:0;background:var(--text);color:var(--bg);font-weight:800;font-size:16px;
-  box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
-.ia{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column}
-.ia[hidden]{display:none}
-.ia-top{display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));
-  background:var(--surface);border-bottom:1px solid var(--line)}
-.ia-top b{flex:1;font-size:17px;min-width:0}
-.ia-top small{display:block;font-weight:500;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ia-bt{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;height:36px;padding:0 12px;font-weight:600;font-size:13px;cursor:pointer}
-.ia-fil{flex:1;overflow-y:auto;padding:14px max(16px,env(safe-area-inset-right)) 8px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:10px}
-.ia-m{max-width:92%;padding:10px 13px;border-radius:14px;background:var(--surface);border:1px solid var(--line);overflow-wrap:anywhere;min-width:0;line-height:1.45}
-.ia-m.u{align-self:flex-end;background:var(--text);color:var(--bg);border-color:transparent;white-space:pre-wrap}
-.ia-m p{margin:0 0 7px}.ia-m p:last-child{margin:0}.ia-m ul{margin:3px 0 7px;padding-inline-start:20px}.ia-m h4{margin:8px 0 3px;font-size:14px}
+#v-ia{position:fixed;left:0;right:0;top:calc(var(--hh) + env(safe-area-inset-top));bottom:calc(var(--nav) + env(safe-area-inset-bottom));z-index:5;display:flex;flex-direction:column;background:var(--bg)}
+.ia-fil{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:14px max(16px,env(safe-area-inset-right)) 8px max(16px,env(safe-area-inset-left))}
+.ia-fil>.in{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.ia-m{max-width:92%;padding:11px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);overflow-wrap:anywhere;min-width:0;line-height:1.5;font-size:15px}
+.ia-m.u{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-color:transparent;white-space:pre-wrap}
+.ia-m p{margin:0 0 7px}.ia-m p:last-child{margin:0}.ia-m ul{margin:3px 0 7px;padding-inline-start:20px}.ia-m h4{margin:8px 0 3px;font-size:15px}
 .ia-m .par{display:block;margin-top:6px;font-size:11px;color:var(--muted)}
 .ia-m .att{color:var(--muted);font-style:italic}
 .ia-m.err{border-color:var(--down);color:var(--down)}
 .ia-note{font-size:12.5px;color:var(--muted);border-inline-start:3px solid var(--warn);padding-inline-start:9px;margin-top:8px}
-.ia-bas{padding:6px max(16px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:var(--bg)}
+.ia-bas{padding:8px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));background:var(--bg);border-top:1px solid var(--line)}
+.ia-bas>.in{max-width:720px;margin:0 auto}
 .ia-chips{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}.ia-chips::-webkit-scrollbar{display:none}
-.ia-chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:7px 12px;font-size:13px;white-space:nowrap;cursor:pointer}
-.ia-chip.k{font-weight:700;border-color:var(--text)}
-.ia-comp{display:flex;gap:8px;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px}
-.ia-comp textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;resize:none;max-height:130px;padding:7px 8px;outline:none}
-.ia-env{flex:none;width:40px;height:40px;border:0;border-radius:10px;background:var(--text);color:var(--bg);font-size:18px;cursor:pointer}
+.ia-chip{flex:none;min-height:38px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:7px 13px;font-size:14px;white-space:nowrap;cursor:pointer}
+.ia-chip.k{font-weight:700;border-color:var(--accent);color:var(--accent)}
+.ia-comp{display:flex;gap:8px;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:5px}
+.ia-comp textarea{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:16px;resize:none;max-height:130px;padding:9px 10px;outline:none}
+.ia-env{flex:none;width:44px;height:44px;border:0;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-size:18px;cursor:pointer}
 .ia-env:disabled{opacity:.4}
-.ia-pan{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
-.ia-pan h3{margin:0;font-size:16px}.ia-pan p{margin:0;font-size:13px;color:var(--muted)}
-.ia-pan label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:600;min-width:0}
-.ia-pan input,.ia-pan select{font:inherit;font-size:15px;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
-.ia-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.ia-acts{display:flex;gap:8px;flex-wrap:wrap}
+[dir=rtl] .ia-env{transform:scaleX(-1)}
+.ia-pan{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ia-pan h3{margin:0;font-size:17px}.ia-pan p{margin:0;font-size:13px;color:var(--muted);line-height:1.45}
+.ia-pan label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--text);font-weight:600;min-width:0;margin:6px 0 0}
+.ia-2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.ia-2>*{min-width:0}
+.ia-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .ia-ok{color:var(--up)!important}.ia-ko{color:var(--down)!important}
-.ia-seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.ia-seg button{flex:1;border:0;background:transparent;color:var(--text);padding:9px;font-weight:700;cursor:pointer}
-.ia-seg button.on{background:var(--text);color:var(--bg)}
-.ia-pan a{color:var(--info)}
+.ia-etat{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
 `;
 const st1 = document.createElement("style"); st1.textContent = css; document.head.appendChild(st1);
-const racine = document.createElement("div");
-racine.innerHTML = `<button class="ia-fab" id="ia-fab" type="button">IA</button>
-<section class="ia" id="ia" hidden role="dialog" aria-modal="true">
-  <div class="ia-top"><b><span id="ia-titre"></span><small id="ia-sous"></small></b>
-    <button class="ia-bt" id="ia-rg" type="button"></button><button class="ia-bt" id="ia-x" type="button" aria-label="">✕</button></div>
-  <div class="ia-fil" id="ia-fil" aria-live="polite"></div>
-  <div class="ia-bas"><div class="ia-chips" id="ia-chips"></div>
-    <form class="ia-comp" id="ia-form"><textarea id="ia-in" rows="1" autocomplete="off"></textarea><button class="ia-env" id="ia-env" type="submit" aria-label="Envoyer">➤</button></form></div>
-</section>`;
-document.body.appendChild(racine);
+const vue = document.getElementById("v-ia");
+vue.innerHTML = `<div class="ia-fil" id="ia-fil"><div class="in" id="ia-in-fil" aria-live="polite"></div></div>
+  <div class="ia-bas"><div class="in"><div class="ia-chips" id="ia-chips"></div>
+    <form class="ia-comp" id="ia-form"><textarea id="ia-in" rows="1" autocomplete="off"></textarea><button class="ia-env" id="ia-env" type="submit" aria-label="Envoyer">➤</button></form></div></div>`;
 const $i = s => document.getElementById(s);
 const echap = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 
@@ -403,37 +396,35 @@ function md(s) {
   }
   return html + (liste ? "</ul>" : "");
 }
+const fil = () => $i("ia-in-fil");
 function bulle(role, html, cls = "") {
   const d = document.createElement("div");
   d.className = `ia-m ${role === "user" ? "u" : ""} ${cls}`; d.innerHTML = html;
-  $i("ia-fil").appendChild(d); return d;
+  fil().appendChild(d); return d;
 }
 const enBas = () => { const f = $i("ia-fil"); f.scrollTop = f.scrollHeight; };
 const etiquette = par => `<span class="par">${par === "claude" ? x("parClaude") : x("parGemini")}</span>`;
 const configure = () => !!(CLES.gemini || CLES.anthropic);
 
 function rendre() {
-  const ia = $i("ia"); ia.dir = LANG === "ar" ? "rtl" : "ltr"; ia.lang = LANG;
-  $i("ia-titre").textContent = x("titre");
-  $i("ia-sous").textContent = M.date_seance + " · " + (MODE === "anthropic" ? "Claude" : MODE === "gemini" ? "Gemini" : "Gemini → Claude");
-  $i("ia-rg").textContent = x("reglages"); $i("ia-x").setAttribute("aria-label", x("fermer"));
+  vue.lang = LANG;
   $i("ia-in").placeholder = x("ph"); $i("ia-env").disabled = busy;
-  const fil = $i("ia-fil"); fil.innerHTML = "";
+  fil().innerHTML = "";
   bulle("ai", `<p>${x("bienvenue")}</p><div class="ia-note">${x("avert")}</div>`);
-  if (!configure()) { bulle("ai", `<p>${x("sansCle")}</p>`); panneauCles(); }
+  if (!configure()) panneauAccueil();
   FIL.forEach(m => bulle(m.role, m.role === "user" ? echap(m.content) : md(m.content) + etiquette(m.par)));
   $i("ia-chips").innerHTML = `<button class="ia-chip k" type="button" data-ordre="1">${x("chipOrdre")}</button>`
     + x("chips").map(c => `<button class="ia-chip" type="button">${echap(c)}</button>`).join("")
     + (FIL.length ? `<button class="ia-chip" type="button" data-raz="1">${x("raz")}</button>` : "");
   enBas();
 }
-function ouvrir() { $i("ia").hidden = false; document.body.style.overflow = "hidden"; rendre(); }
-function fermerIA() { $i("ia").hidden = true; document.body.style.overflow = ""; }
+let rendu = false;
+function afficher() { if (!rendu) { rendre(); rendu = true; } enBas(); }
 
 async function demander(texte) {
   texte = (texte || "").trim();
   if (!texte || busy) return;
-  if (!configure()) { panneauCles(); return; }
+  if (!configure()) { panneauAccueil(); return; }
   busy = true; $i("ia-env").disabled = true;
   FIL.push({role: "user", content: texte}); st.set("fil", FIL.slice(-30));
   bulle("user", echap(texte));
@@ -444,56 +435,93 @@ async function demander(texte) {
     const txt = r.texte || "…";
     rep.innerHTML = (r.bascule ? `<p class="ia-note">${x("bascule")}</p>` : "") + md(txt) + etiquette(r.par);
     FIL.push({role: "assistant", content: txt, par: r.par}); st.set("fil", FIL.slice(-30));
+    if (!$i("ia-in-fil").querySelector(".ia-chip[data-raz]")) rendreChipsRaz();
   } catch (e) {
     FIL.pop(); st.set("fil", FIL.slice(-30));
     rep.classList.add("err");
     const fz = e.fournisseur || (MODE === "anthropic" || !CLES.gemini ? "Claude" : "Gemini");
     const m = {sanscle: x("sansCle"), quotaSansClaude: x("quotaSansClaude"), cle: x("cleKo", fz), credit: x("creditKo"), reseau: x("reseau"),
       quota: x("erreur", "quota")}[e.type] || x("erreur", e.message);
-    rep.innerHTML = `<p>${echap(m)}</p>`;
-    if (["sanscle", "quotaSansClaude", "cle", "credit"].includes(e.type)) panneauCles();
+    rep.innerHTML = `<p>${echap(m)}</p><p class="ia-note">${x("gerer")}</p>`;
+    if (e.type === "sanscle") panneauAccueil();
   } finally { busy = false; $i("ia-env").disabled = false; enBas(); }
 }
+function rendreChipsRaz() {
+  if (!$i("ia-chips").querySelector("[data-raz]")) $i("ia-chips").insertAdjacentHTML("beforeend", `<button class="ia-chip" type="button" data-raz="1">${x("raz")}</button>`);
+}
 
-function panneauCles() {
-  if ($i("ia-cles")) return $i("ia-cles").scrollIntoView({block: "nearest"});
-  const d = document.createElement("div"); d.className = "ia-pan"; d.id = "ia-cles";
-  d.innerHTML = `<h3>${x("rgTitre")}</h3><p>${x("rgAide")}</p>
-    <label>${x("gTitre")} · ${CLES.gemini ? x("masquee") : x("vide")}<input id="ia-kg" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="AIza…"></label>
-    <p>${x("gAide")} <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a></p>
-    <label>${x("aTitre")} · ${CLES.anthropic ? x("masquee") : x("vide")}<input id="ia-ka" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-…"></label>
-    <p>${x("aAide")} <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a></p>
-    <label>${x("mode")}<select id="ia-mode">
-      <option value="auto">${x("modeAuto")}</option><option value="gemini">${x("modeG")}</option><option value="anthropic">${x("modeA")}</option></select></label>
-    <div class="ia-acts"><button class="ia-bt" id="ia-enr" type="button">${x("enr")}</button><button class="ia-bt" id="ia-test" type="button">${x("test")}</button>
-      <button class="ia-bt" id="ia-eff" type="button">${x("effacer")}</button><button class="ia-bt" id="ia-pfx" type="button">${x("fermer")}</button></div>
-    <p id="ia-rgmsg"></p>
-    <p><a href="${ARTIFACT}" target="_blank" rel="noopener">${x("claudeai")}</a></p>`;
-  $i("ia-fil").appendChild(d); enBas();
-  $i("ia-mode").value = MODE;
-  const msg = (t, ok) => { const p = $i("ia-rgmsg"); p.textContent = t; p.className = ok ? "ia-ok" : "ia-ko"; };
-  $i("ia-enr").onclick = () => {
-    const g = $i("ia-kg").value.trim(), a = $i("ia-ka").value.trim();
+/* Test des clés : renvoie une liste de {ok, txt}. */
+async function tester() {
+  const res = [];
+  if (CLES.gemini) { try { res.push({ok: true, txt: x("testOk", "Gemini (" + await modeleGemini(true) + ")")}); } catch (e) { res.push({ok: false, txt: x("testKo", "Gemini", e.message.slice(0, 120))}); } }
+  if (CLES.anthropic) {
+    try { await appel("https://api.anthropic.com/v1/messages", {method: "POST", headers: {"Content-Type": "application/json", "x-api-key": CLES.anthropic,
+      "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true"},
+      body: JSON.stringify({model: MODELE_CLAUDE, max_tokens: 5, messages: [{role: "user", content: "ok"}]})}); res.push({ok: true, txt: x("testOk", "Claude")}); }
+    catch (e) { res.push({ok: false, txt: x("testKo", "Claude", e.message.slice(0, 120))}); }
+  }
+  return res;
+}
+const champCle = (id, ph) => `<input id="${id}" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${ph}">`;
+
+/* Carte d'accueil (aucune clé) : 2 étapes, un seul bouton. */
+function panneauAccueil() {
+  if ($i("ia-onb")) return $i("ia-onb").scrollIntoView({block: "nearest"});
+  const d = document.createElement("div"); d.className = "ia-pan"; d.id = "ia-onb";
+  d.innerHTML = `<h3>${x("onbTitre")}</h3>
+    <label for="onb-g">${x("onb1")}</label>
+    <p>${x("onb1Aide")} <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a></p>
+    ${champCle("onb-g", "AIza…")}
+    <label for="onb-a">${x("onb2")}</label>
+    <p>${x("onb2Aide")}</p>
+    ${champCle("onb-a", "sk-ant-…")}
+    <div class="ia-acts"><button class="btn primary" id="onb-go" type="button">${x("onbGo")}</button></div>
+    <p id="onb-msg"></p>`;
+  fil().appendChild(d); enBas();
+  $i("onb-go").onclick = async () => {
+    const g = $i("onb-g").value.trim(), a = $i("onb-a").value.trim(), msg = $i("onb-msg");
+    if (!g && !a) { msg.className = "ia-ko"; msg.textContent = x("sansCle"); return; }
     if (g) { CLES.gemini = g; st.del("gmodele"); }
     if (a) CLES.anthropic = a;
-    MODE = $i("ia-mode").value; st.set("cles", CLES); st.set("mode", MODE);
-    $i("ia-kg").value = ""; $i("ia-ka").value = ""; msg(x("ok"), true);
-    $i("ia-sous").textContent = M.date_seance + " · " + (MODE === "anthropic" ? "Claude" : MODE === "gemini" ? "Gemini" : "Gemini → Claude");
+    st.set("cles", CLES);
+    msg.className = ""; msg.textContent = x("testEnCours");
+    const res = await tester();
+    msg.className = res.every(r => r.ok) ? "ia-ok" : "ia-ko";
+    msg.textContent = res.map(r => r.txt).join(" · ");
+    if (res.some(r => r.ok)) setTimeout(rendre, 1200);
   };
-  $i("ia-test").onclick = async () => {
-    $i("ia-enr").click();
-    const res = [];
-    if (CLES.gemini) { try { res.push(x("testOk", "Gemini (" + await modeleGemini(true) + ")")); } catch (e) { res.push(x("testKo", "Gemini", e.message.slice(0, 120))); } }
-    if (CLES.anthropic) {
-      try { await appel("https://api.anthropic.com/v1/messages", {method: "POST", headers: {"Content-Type": "application/json", "x-api-key": CLES.anthropic,
-        "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true"},
-        body: JSON.stringify({model: MODELE_CLAUDE, max_tokens: 5, messages: [{role: "user", content: "ok"}]})}); res.push(x("testOk", "Claude")); }
-      catch (e) { res.push(x("testKo", "Claude", e.message.slice(0, 120))); }
-    }
-    msg(res.join(" · ") || x("sansCle"), res.length && !res.some(r => r.includes(":")));
+}
+
+/* Gestion complète des clés, affichée dans Réglages. */
+function cles(box) {
+  if (!box) return;
+  box.innerHTML = `<div class="ia-pan" style="border:0;padding:0">
+    <p>${x("rgAide")}</p>
+    <div class="ia-etat"><span>Gemini</span><b class="${CLES.gemini ? "ia-ok" : ""}">${CLES.gemini ? x("masquee") : x("vide")}</b></div>
+    <div class="ia-etat"><span>Claude</span><b class="${CLES.anthropic ? "ia-ok" : ""}">${CLES.anthropic ? x("masquee") : x("vide")}</b></div>
+    <label for="rg-g">${x("gTitre")}</label><p>${x("gAide")} <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a></p>${champCle("rg-g", "AIza…")}
+    <label for="rg-a">${x("aTitre")}</label><p>${x("aAide")} <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a></p>${champCle("rg-a", "sk-ant-…")}
+    <label for="rg-mode">${x("mode")}<select id="rg-mode">
+      <option value="auto">${x("modeAuto")}</option><option value="gemini">${x("modeG")}</option><option value="anthropic">${x("modeA")}</option></select></label>
+    <div class="ia-acts"><button class="btn primary" id="rg-enr" type="button">${x("enr")}</button><button class="btn" id="rg-test" type="button">${x("test")}</button>
+      <button class="btn danger" id="rg-eff" type="button">${x("effacer")}</button></div>
+    <p id="rg-msg"></p>
+    <p><a href="${ARTIFACT}" target="_blank" rel="noopener">${x("claudeai")}</a></p></div>`;
+  $i("rg-mode").value = MODE;
+  const msg = (t, ok) => { const p = $i("rg-msg"); p.textContent = t; p.className = ok == null ? "" : ok ? "ia-ok" : "ia-ko"; };
+  const enr = () => {
+    const g = $i("rg-g").value.trim(), a = $i("rg-a").value.trim();
+    if (g) { CLES.gemini = g; st.del("gmodele"); }
+    if (a) CLES.anthropic = a;
+    MODE = $i("rg-mode").value; st.set("cles", CLES); st.set("mode", MODE); rendu = false;
   };
-  $i("ia-eff").onclick = () => { CLES = {gemini: "", anthropic: ""}; st.set("cles", CLES); st.del("gmodele"); d.remove(); rendre(); };
-  $i("ia-pfx").onclick = () => d.remove();
+  $i("rg-enr").onclick = () => { enr(); cles(box); $i("rg-msg").textContent = x("ok"); $i("rg-msg").className = "ia-ok"; };
+  $i("rg-test").onclick = async () => {
+    enr(); msg(x("testEnCours"));
+    const res = await tester();
+    cles(box); msg(res.map(r => r.txt).join(" · ") || x("sansCle"), res.length > 0 && res.every(r => r.ok));
+  };
+  $i("rg-eff").onclick = () => { CLES = {gemini: "", anthropic: ""}; st.set("cles", CLES); st.del("gmodele"); rendu = false; cles(box); };
 }
 
 function panneauOrdre(isin) {
@@ -502,18 +530,18 @@ function panneauOrdre(isin) {
   const f0 = isin ? PAR_ISIN[isin] : null;
   const d = document.createElement("div"); d.className = "ia-pan"; d.id = "ia-ordre";
   d.innerHTML = `<h3>${x("ordTitre")}</h3>
-    <label>${x("ordVal")}<select id="io-val">${[...V].sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(f => `<option value="${echap(f.isin)}"${f0 && f0.isin === f.isin ? " selected" : ""}>${echap(f.nom)}</option>`).join("")}</select></label>
-    <div class="ia-seg"><button type="button" class="on" data-s="achat">${x("achat")}</button><button type="button" data-s="vente">${x("vente")}</button></div>
-    <div class="ia-2"><label>${x("prix")}<input id="io-prix" type="number" step="0.01" inputmode="decimal"></label>
-      <label>${x("qte")}<input id="io-qte" type="number" inputmode="numeric"></label>
-      <label>${x("obj")}<input id="io-obj" type="number" step="0.5" inputmode="decimal" value="${R.obj}"></label>
-      <label>${x("seuil")}<input id="io-seuil" type="number" step="0.5" inputmode="decimal" value="${R.seuil}"></label></div>
+    <label for="io-val">${x("ordVal")}<select id="io-val">${[...V].sort((a, b) => a.nom.localeCompare(b.nom, "fr")).map(f => `<option value="${echap(f.isin)}"${f0 && f0.isin === f.isin ? " selected" : ""}>${echap(f.nom)}</option>`).join("")}</select></label>
+    <div class="seg" role="group"><button type="button" aria-pressed="true" data-s="achat">${x("achat")}</button><button type="button" aria-pressed="false" data-s="vente">${x("vente")}</button></div>
+    <div class="ia-2"><label for="io-prix">${x("prix")}<input id="io-prix" type="number" step="0.01" inputmode="decimal"></label>
+      <label for="io-qte">${x("qte")}<input id="io-qte" type="number" inputmode="numeric"></label>
+      <label for="io-obj">${x("obj")}<input id="io-obj" type="number" step="0.5" inputmode="decimal" value="${R.obj}"></label>
+      <label for="io-seuil">${x("seuil")}<input id="io-seuil" type="number" step="0.5" inputmode="decimal" value="${R.seuil}"></label></div>
     <p class="ia-ko" id="io-err" hidden>${x("ordManque")}</p>
-    <div class="ia-acts"><button class="ia-bt" id="io-go" type="button">${x("ordGo")}</button><button class="ia-bt" id="io-x" type="button">${x("fermer")}</button></div>`;
-  $i("ia-fil").appendChild(d); enBas();
+    <div class="ia-acts"><button class="btn primary" id="io-go" type="button">${x("ordGo")}</button><button class="btn" id="io-x" type="button">${x("fermer")}</button></div>`;
+  fil().appendChild(d); enBas();
   const prixDefaut = () => { const f = PAR_ISIN[$i("io-val").value]; if (f) $i("io-prix").value = f.cours; };
   prixDefaut(); $i("io-val").onchange = prixDefaut;
-  d.querySelectorAll(".ia-seg button").forEach(b => b.onclick = () => { sens = b.dataset.s; d.querySelectorAll(".ia-seg button").forEach(y => y.classList.toggle("on", y === b)); });
+  d.querySelectorAll(".seg button").forEach(b => b.onclick = () => { sens = b.dataset.s; d.querySelectorAll(".seg button").forEach(y => y.setAttribute("aria-pressed", y === b)); });
   $i("io-x").onclick = () => d.remove();
   $i("io-go").onclick = () => {
     const f = PAR_ISIN[$i("io-val").value], prix = parseFloat(String($i("io-prix").value).replace(",", ".")), qte = parseInt($i("io-qte").value, 10);
@@ -524,9 +552,6 @@ function panneauOrdre(isin) {
 }
 
 /* ---------- Événements ---------- */
-$i("ia-fab").onclick = ouvrir;
-$i("ia-x").onclick = fermerIA;
-$i("ia-rg").onclick = panneauCles;
 $i("ia-form").addEventListener("submit", e => { e.preventDefault(); const v = $i("ia-in").value; $i("ia-in").value = ""; taille(); demander(v); });
 const taille = () => { const s = $i("ia-in"); s.style.height = "auto"; s.style.height = Math.min(130, s.scrollHeight) + "px"; };
 $i("ia-in").addEventListener("input", taille);
@@ -537,13 +562,14 @@ $i("ia-chips").addEventListener("click", e => {
   if (b.dataset.raz) { FIL = []; st.set("fil", FIL); return rendre(); }
   demander(b.textContent);
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$i("ia").hidden) fermerIA(); });
 
-// API publique pour le reste de l'application (bouton IA de l'en-tête, fiche d'une valeur).
+// API utilisée par l'application (onglet IA, fiche d'une valeur, réglages).
 window.BVC_IA = {
-  ouvrir,
-  analyser(isin) { const f = PAR_ISIN[isin]; ouvrir(); if (f) demander(x("ficheQ", `${f.nom} (${f.isin})`)); },
-  verifier(isin) { ouvrir(); panneauOrdre(isin); },
-  langue() { if (!$i("ia").hidden) rendre(); }
+  afficher,
+  ouvrir() { if (typeof montrer === "function") montrer("ia"); },
+  analyser(isin) { afficher(); const f = PAR_ISIN[isin]; if (f) demander(x("ficheQ", `${f.nom} (${f.isin})`)); },
+  verifier(isin) { afficher(); panneauOrdre(isin); },
+  langue() { rendu = false; if (!vue.classList.contains("hidden")) afficher(); },
+  cles
 };
 })();
