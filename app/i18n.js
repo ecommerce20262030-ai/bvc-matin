@@ -97,7 +97,7 @@ fr: {
 
   "pf.titre": "Mon portefeuille", "pf.lignes": "{n} ligne(s)", "pf.valeur": "Valeur au dernier cours", "pf.cout": "Coût d'achat (frais inclus)",
   "pf.net": "Plus-value nette si je vends", "pf.ajouter": "+ Ajouter un achat",
-  "ia.bouton": "IA", "ia.titre": "Conseiller IA (votre compte Claude)", "ia.copier": "Copier pour le conseiller IA",
+  "ia.bouton": "IA", "ia.analyser": "Demander à l'IA", "ia.verifier": "Vérifier un ordre (IA)", "ia.titre": "Conseiller IA", "ia.copier": "Copier pour le conseiller IA",
   "ia.copie": "Copié. Ouvrez le conseiller (bouton IA en haut), touchez PF et collez.", "ia.copie.ko": "Copie impossible : sélectionnez le texte affiché et copiez-le.", "pf.alertes": "Alertes", "pf.positions": "Positions",
   "pf.toucher": "touche une ligne pour la modifier", "pf.col.valeur": "Valeur", "pf.col.qte": "Qté × prix", "pf.col.cours": "Cours", "pf.col.net": "Net",
   "pf.vide": "Aucune position. Ajoute tes achats pour suivre ta plus-value et recevoir des alertes.",
@@ -248,7 +248,7 @@ ar: {
 
   "pf.titre": "محفظتي", "pf.lignes": "{n} سطر", "pf.valeur": "القيمة بآخر سعر", "pf.cout": "تكلفة الشراء (مع المصاريف)",
   "pf.net": "فائض القيمة الصافي إذا بعت", "pf.ajouter": "+ إضافة عملية شراء",
-  "ia.bouton": "مستشار", "ia.titre": "المستشار الذكي (حسابك على Claude)", "ia.copier": "نسخ للمستشار",
+  "ia.bouton": "مستشار", "ia.analyser": "اسأل الذكاء الاصطناعي", "ia.verifier": "مراجعة أمر (ذكاء)", "ia.titre": "المستشار الذكي", "ia.copier": "نسخ للمستشار",
   "ia.copie": "تم النسخ. افتح المستشار (زر في الأعلى)، اضغط PF ثم الصق.", "ia.copie.ko": "تعذر النسخ: حدد النص المعروض وانسخه.", "pf.alertes": "تنبيهات", "pf.positions": "المراكز",
   "pf.toucher": "اضغط على سطر لتعديله", "pf.col.valeur": "القيمة", "pf.col.qte": "الكمية × السعر", "pf.col.cours": "السعر", "pf.col.net": "الصافي",
   "pf.vide": "لا يوجد أي مركز. أضف مشترياتك لتتبع فائض القيمة وتلقي التنبيهات.",

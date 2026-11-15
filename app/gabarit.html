@@ -132,7 +132,7 @@ svg.spark,svg.big{direction:ltr}
     <div><h1>BVC Matin</h1><div class="sub" id="seance"></div></div>
     <div style="display:flex;gap:10px;align-items:flex-end">
       <div class="sub num" id="maj" style="text-align:end"></div>
-      <a class="langue ia" id="b-ia" href="https://claude.ai/artifact/PhbA8WfscS1DewHSRDQM2r" target="_blank" rel="noopener"></a>
+      <button class="langue ia" id="b-ia" type="button"></button>
       <button class="langue" id="b-langue" aria-label=""></button>
     </div>
   </header>
@@ -444,9 +444,7 @@ function rendrePortefeuille() {
       <div class="kpi"><span>${t("pf.cout")}</span><b class="num">${mad(cout, 0)}</b></div>
       <div class="kpi"><span>${t("pf.net")}</span><b class="num ${cls(net)}">${mad(net, 0)} · ${pct(cout ? net / cout * 100 : null)}</b></div>
     </div>
-    <div class="btns"><button class="btn primary" id="b-ajout">${t("pf.ajouter")}</button>
-      <button class="btn" id="b-copier-ia">${t("ia.copier")}</button></div>
-    <div class="sub" id="ia-msg"></div>`;
+    <div class="btns"><button class="btn primary" id="b-ajout">${t("pf.ajouter")}</button></div>`;
   const al = alertesPortefeuille();
   $("#pf-alertes").innerHTML = al.length ? `<div class="card"><h2>${t("pf.alertes")}<small>${al.length}</small></h2>${htmlAlertes(al)}</div>` : "";
   $("#badge-pf").textContent = al.length; $("#badge-pf").classList.toggle("hidden", !al.length);
@@ -750,6 +748,8 @@ async function ouvrirFiche(isin) {
       <button class="chip" data-p="0" aria-pressed="false">${t("fiche.tout")}</button></div>
     <div id="courbe">${courbe(f.historique)}</div>
     <div class="btns">
+      <button class="btn primary" data-ia="analyser" data-isin="${f.isin}">${t("ia.analyser")}</button>
+      <button class="btn" data-ia="verifier" data-isin="${f.isin}">${t("ia.verifier")}</button>
       <button class="btn" id="f-pf">${t("fiche.pf")}</button>
       <button class="btn" id="f-sim">${t("fiche.sim")}</button>
       <a class="btn" href="${news}" target="_blank" rel="noopener" style="text-decoration:none">${t("fiche.news")}</a></div>
@@ -903,7 +903,7 @@ function rendreInstall() {
 }
 
 function toutRendre() {
-  textesFixes(); rendreInstall(); rendreAccueil(); rendreStrategie(); rendreSuggestions(); rendreBilan(); rendrePortefeuille(); rendreSimulation(); rendreListe(); rendrePied();
+  textesFixes(); window.BVC_IA?.langue(); rendreInstall(); rendreAccueil(); rendreStrategie(); rendreSuggestions(); rendreBilan(); rendrePortefeuille(); rendreSimulation(); rendreListe(); rendrePied();
 }
 
 function montrer(v) {
@@ -915,7 +915,8 @@ function montrer(v) {
 /* ---------- Événements ---------- */
 document.addEventListener("click", e => {
   const el = e.target;
-  if (el.closest("#b-copier-ia")) { copierPourIA(); return; }
+  if (el.closest("#b-ia")) { window.BVC_IA?.ouvrir(); return; }
+  const ia = el.closest("[data-ia]"); if (ia) { fermer(); return window.BVC_IA?.[ia.dataset.ia](ia.dataset.isin); }
   if (el.closest("#b-langue")) { LANG = LANG === "ar" ? "fr" : "ar"; store.set("langue", LANG); fermer(); return toutRendre(); }
   const nav = el.closest("nav.bas button"); if (nav) return montrer(nav.dataset.v);
   const go = el.closest("[data-goto]"); if (go) return montrer(go.dataset.goto);
@@ -965,5 +966,6 @@ $("#b-import").onclick = () => {
 toutRendre();
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
+<script src="ia.js"></script>
 </body>
 </html>
