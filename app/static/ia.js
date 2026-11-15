@@ -230,6 +230,167 @@ function executer(nom, args) {
   try { return o.run(args || {}); } catch (e) { return {erreur: e.message}; }
 }
 
+/* ---------- Réponses calculées par l'application (sans IA) ----------
+ * Les boutons rapides, la vérification d'ordre et l'analyse d'une valeur répondent
+ * toujours, même sans clé IA (ou si le quota est épuisé) : l'application calcule
+ * elle-même à partir des données du jour. L'IA, quand elle est configurée, va plus loin. */
+const AR = () => LANG === "ar";
+const sg = v => v == null || isNaN(v) ? "—" : (v > 0 ? "+" : "") + f2(v) + " %";
+const mad2 = (v, d = 0) => f2(v, d) + (AR() ? " درهم" : " MAD");
+const L = {
+  fr: {
+    seance: d => `**Séance du ${d}**`, hb: (h, b, s) => `${h} valeurs en hausse, ${b} en baisse, ${s} stables.`,
+    cap: (c, v) => `Capitalisation totale : **${c} Mds MAD** (${v} sur la séance).`,
+    baisses: "Plus fortes baisses (valeurs liquides) :", hausses: "Plus fortes hausses (valeurs liquides) :",
+    zone: (n, k) => `Zone d'achat de votre méthode : **${n}** valeur(s) liquide(s), dont **${k}** avec un résultat net moyen positif sur ~3 ans.`,
+    pfVide: "Aucune position enregistrée. Ajoutez vos achats dans l'onglet Portefeuille, je pourrai alors les surveiller.",
+    pfTot: (v, c, n, p) => `Valeur si vous vendez tout : **${v}** pour un coût de ${c} : résultat net **${n}** (${p}), frais inclus.`,
+    pfLigne: (nom, q, pr, c, vj, n, p) => `**${nom}** : ${q} × ${pr}, cours ${c} (${vj}) → net ${n} (${p})`,
+    pfAl: "À surveiller :", pfRien: "Aucune alerte aujourd'hui sur vos positions.",
+    strat: (o, s, d) => `Votre méthode : revente à +${o} %, sortie à -${s} %, au plus ${d} séances. Résultats sur ~3 ans, frais inclus :`,
+    stratZ: (n, k, m) => `- ${n} valeur(s) liquide(s) sont en zone d'achat aujourd'hui ; ${k} ont un résultat net moyen positif. Moyenne : **${m}** par opération.`,
+    stratAll: (n, k, m) => `- Sur l'ensemble des ${n} valeurs liquides testées : ${k} positives, moyenne **${m}** par opération.`,
+    stratTop: "Meilleurs historiques parmi la zone d'achat :",
+    frais: (a, z) => `Frais aller-retour ≈ **${a}** : il faut au moins **+${z}** de hausse pour ne rien perdre.`,
+    stratKo: "Conclusion chiffrée : en moyenne la méthode perd de l'argent après frais en ce moment. Viser plus haut que les frais ou être plus sélectif change le résultat ; testez d'autres réglages dans ⚙️.",
+    stratOk: "Conclusion chiffrée : en moyenne la méthode gagne après frais sur ces valeurs, sans garantie pour la suite.",
+    bTitre: "Plus fortes baisses de la séance (valeurs liquides) :",
+    bLigne: (nom, v, c, e, r) => `**${nom}** : ${v}, cours ${c}, à ${e} de son plus bas 52 sem., RSI ${r}`,
+    ordA: (q, nom, p, m) => `**Achat de ${q} ${nom} à ${p}** (montant ${m})`,
+    ordV: (q, nom, p, m) => `**Vente de ${q} ${nom} à ${p}** (montant ${m})`,
+    ecart: (e, c) => `Écart avec le dernier cours (${c}) : ${e}`,
+    fa: (f, t) => `Frais d'achat : ${f} ; coût total : ${t}`,
+    pr: (p, z) => `Revente minimum sans perte : **${p}** (${z})`,
+    obj: (o, p, g) => `À l'objectif (+${o} %, ${p}) : gain net **${g}**`,
+    sor: (s, p, g) => `À la sortie (-${s} %, ${p}) : perte nette **${g}**`,
+    poids: (p, l) => `Poids dans votre capital : ${p} (prévu par ligne : ${l})`,
+    hist: (n, a, m) => `Votre méthode sur cette valeur (~3 ans) : ${n} opérations, objectif atteint ${a}, net moyen **${m}**`,
+    fv: (f, n) => `Frais de vente : ${f} ; vous recevez net : ${n}`,
+    pos: (q, pm, r) => `Position détenue : ${q} titres à ${pm} en moyenne ; résultat net de cette vente : **${r}**`,
+    att: "**Points d'attention :**", rienAtt: "Aucune alerte automatique.",
+    decision: "La décision vous appartient.",
+    f1: (nom, s, c, vj, v5, v1) => `**${nom} (${s})** : cours ${c} (${vj} sur la séance, ${v5} sur 5 séances, ${v1} sur 1 an).`,
+    f52: (h, b, e) => `Plus haut / plus bas 52 sem. : ${h} / ${b} (à ${e} du plus bas)`,
+    ftech: (r, m5, m2) => `RSI 14 : ${r} ; moyenne 50 j : ${m5} ; moyenne 200 j : ${m2}`,
+    fliq: (c, l) => `Liquidité : ${c} échangés par jour en moyenne (${l ? "liquide" : "peu liquide"})`,
+    fsig: "Signaux :", fregles: "Règles actives :", fzone: z => z ? "Dans la zone d'achat de votre méthode aujourd'hui." : "Hors zone d'achat de votre méthode aujourd'hui.",
+    sansIA: "Pour poser vos propres questions, ajoutez la clé gratuite Gemini dans ⚙️ Réglages.",
+    secours: "L'IA ne répond pas pour le moment : voici le calcul de l'application."
+  },
+  ar: {
+    seance: d => `**حصة ${d}**`, hb: (h, b, s) => `${h} سهم في ارتفاع، ${b} في انخفاض، ${s} مستقر.`,
+    cap: (c, v) => `الرسملة الإجمالية: **${c} مليار درهم** (${v} في الحصة).`,
+    baisses: "أكبر الانخفاضات (أسهم سائلة):", hausses: "أكبر الارتفاعات (أسهم سائلة):",
+    zone: (n, k) => `منطقة الشراء حسب طريقتك: **${n}** سهم سائل، منها **${k}** بنتيجة صافية متوسطة إيجابية على ~3 سنوات.`,
+    pfVide: "لا توجد أسهم محفوظة. أضف مشترياتك في تبويب المحفظة لأتمكن من مراقبتها.",
+    pfTot: (v, c, n, p) => `القيمة إذا بعت كل شيء: **${v}** مقابل كلفة ${c}: النتيجة الصافية **${n}** (${p})، مع العمولات.`,
+    pfLigne: (nom, q, pr, c, vj, n, p) => `**${nom}**: ${q} × ${pr}، السعر ${c} (${vj}) ← صافي ${n} (${p})`,
+    pfAl: "للمراقبة:", pfRien: "لا تنبيهات اليوم على أسهمك.",
+    strat: (o, s, d) => `طريقتك: البيع عند ‎+${o}%‎، الخروج عند ‎-${s}%‎، خلال ${d} حصص كحد أقصى. النتائج على ~3 سنوات مع العمولات:`,
+    stratZ: (n, k, m) => `- ${n} سهم سائل في منطقة الشراء اليوم؛ ${k} منها بنتيجة صافية متوسطة إيجابية. المتوسط: **${m}** لكل عملية.`,
+    stratAll: (n, k, m) => `- على مجموع ${n} سهم سائل تم اختبارها: ${k} إيجابية، المتوسط **${m}** لكل عملية.`,
+    stratTop: "أفضل النتائج في منطقة الشراء:",
+    frais: (a, z) => `عمولات الذهاب والإياب ≈ **${a}**: يلزم ارتفاع **‎+${z}‎** على الأقل لتفادي الخسارة.`,
+    stratKo: "الخلاصة بالأرقام: الطريقة تخسر في المتوسط بعد العمولات حاليا. استهداف ربح أعلى من العمولات أو انتقاء أدق يغير النتيجة؛ جرّب إعدادات أخرى في ⚙️.",
+    stratOk: "الخلاصة بالأرقام: الطريقة تربح في المتوسط بعد العمولات على هذه الأسهم، دون ضمان للمستقبل.",
+    bTitre: "أكبر انخفاضات الحصة (أسهم سائلة):",
+    bLigne: (nom, v, c, e, r) => `**${nom}**: ${v}، السعر ${c}، على بعد ${e} من أدنى مستوى في 52 أسبوعا، RSI ${r}`,
+    ordA: (q, nom, p, m) => `**شراء ${q} من ${nom} بسعر ${p}** (المبلغ ${m})`,
+    ordV: (q, nom, p, m) => `**بيع ${q} من ${nom} بسعر ${p}** (المبلغ ${m})`,
+    ecart: (e, c) => `الفرق مع آخر سعر (${c}): ${e}`,
+    fa: (f, t) => `عمولة الشراء: ${f}؛ الكلفة الإجمالية: ${t}`,
+    pr: (p, z) => `أدنى سعر بيع دون خسارة: **${p}** (${z})`,
+    obj: (o, p, g) => `عند الهدف (‎+${o}%‎، ${p}): ربح صاف **${g}**`,
+    sor: (s, p, g) => `عند الخروج (‎-${s}%‎، ${p}): خسارة صافية **${g}**`,
+    poids: (p, l) => `الوزن في رأس مالك: ${p} (المبلغ المقرر لكل سهم: ${l})`,
+    hist: (n, a, m) => `طريقتك على هذا السهم (~3 سنوات): ${n} عملية، بلوغ الهدف ${a}، المتوسط الصافي **${m}**`,
+    fv: (f, n) => `عمولة البيع: ${f}؛ تتوصل صافيا بـ: ${n}`,
+    pos: (q, pm, r) => `الأسهم المملوكة: ${q} بمتوسط ${pm}؛ النتيجة الصافية لهذا البيع: **${r}**`,
+    att: "**نقاط الانتباه:**", rienAtt: "لا تنبيهات تلقائية.",
+    decision: "القرار لك.",
+    f1: (nom, s, c, vj, v5, v1) => `**${nom} (${s})**: السعر ${c} (${vj} في الحصة، ${v5} في 5 حصص، ${v1} في سنة).`,
+    f52: (h, b, e) => `أعلى / أدنى مستوى في 52 أسبوعا: ${h} / ${b} (على بعد ${e} من الأدنى)`,
+    ftech: (r, m5, m2) => `RSI 14: ${r}؛ متوسط 50 يوما: ${m5}؛ متوسط 200 يوم: ${m2}`,
+    fliq: (c, l) => `السيولة: ${c} يوميا في المتوسط (${l ? "سائل" : "ضعيف السيولة"})`,
+    fsig: "الإشارات:", fregles: "القواعد النشطة:", fzone: z => z ? "داخل منطقة الشراء حسب طريقتك اليوم." : "خارج منطقة الشراء حسب طريقتك اليوم.",
+    sansIA: "لطرح أسئلتك الخاصة، أضف مفتاح Gemini المجاني في ⚙️ الإعدادات.",
+    secours: "الذكاء الاصطناعي لا يجيب حاليا: هذا حساب التطبيق."
+  }
+};
+const l = (k, ...a) => { const v = (L[LANG] || L.fr)[k]; return typeof v === "function" ? v(...a) : v; };
+const li = s => "- " + s;
+const nett = s => String(s).replace(/[⁦-⁩]/g, "");
+
+const LOCAL = {
+  marche() {
+    const r = executer("marche_du_jour", {}), m = r.marche, liq = V.filter(f => f.liquide && f.a_jour && f.var_jour != null).sort((a, b) => a.var_jour - b.var_jour);
+    const z = r.zone_achat_liquides || [], k = z.filter(v => (v.strategie?.resultat_net_moyen_pct ?? -1) > 0).length;
+    return [l("seance", m.date_seance), l("hb", m.nb_hausse, m.nb_baisse, m.nb_stable), m.masi != null ? l("cap", f2(m.masi), sg(m.masi_var)) : "",
+      "", l("baisses"), ...liq.slice(0, 5).map(f => li(`${f.nom} : ${sg(f.var_jour)}`)),
+      "", l("hausses"), ...liq.slice(-5).reverse().map(f => li(`${f.nom} : ${sg(f.var_jour)}`)),
+      "", l("zone", z.length, k)].join("\n");
+  },
+  portefeuille() {
+    const r = executer("mon_portefeuille", {});
+    if (r.vide) return l("pfVide");
+    const ps = r.positions, cout = ps.reduce((a, p) => a + p.quantite * p.prix_achat * (1 + tauxFrais().fa), 0);
+    const nn = ps.reduce((a, p) => a + (p.resultat_net_mad ?? 0), 0);
+    const al = typeof alertesPortefeuille === "function" ? alertesPortefeuille() : [];
+    return [l("pfTot", mad2(cout + nn), mad2(cout), mad2(nn), sg(cout ? nn / cout * 100 : null)), "",
+      ...ps.map(p => li(l("pfLigne", p.nom, f2(p.quantite, 0), f2(p.prix_achat), f2(p.cours), sg(p.var_jour_pct), mad2(p.resultat_net_mad), sg(p.resultat_net_pct)))), "",
+      al.length ? l("pfAl") : l("pfRien"), ...al.map(a => li(`${a.titre} : ${nett(a.txt)}`))].join("\n");
+  },
+  strategie() {
+    const liq = V.filter(f => f.liquide), g = liq.map(f => ({f, s: grille(f)})).filter(x => x.s && x.s.executes >= 10 && x.s.resultat_net_moyen_pct != null);
+    const z = g.filter(x => x.f.strategie?.zone), moy = a => a.length ? a.reduce((t, x) => t + x.s.resultat_net_moyen_pct, 0) / a.length : null;
+    const {fa, fv} = tauxFrais(), ar = ((1 + fa) / (1 - fv) - 1) * 100;
+    const mz = moy(z), mg = moy(g), top = [...z].sort((a, b) => b.s.resultat_net_moyen_pct - a.s.resultat_net_moyen_pct).slice(0, 3);
+    return [l("strat", R.obj, R.seuil, R.duree),
+      l("stratZ", z.length, z.filter(x => x.s.resultat_net_moyen_pct > 0).length, sg(mz)),
+      l("stratAll", g.length, g.filter(x => x.s.resultat_net_moyen_pct > 0).length, sg(mg)),
+      ...(top.length ? ["", l("stratTop"), ...top.map(x => li(`${x.f.nom} : ${sg(x.s.resultat_net_moyen_pct)} (${x.s.executes} ${AR() ? "عملية" : "op."}, ${f2(x.s.pct_objectif_atteint, 0)} %)`))] : []),
+      "", l("frais", f2(ar) + " %", f2(ar) + " %"), "", (mg ?? -1) > 0 ? l("stratOk") : l("stratKo")].join("\n");
+  },
+  baisses() {
+    const r = executer("lister_valeurs", {filtre: "baisse", liquides_seulement: true, limite: 8});
+    return [l("bTitre"), ...r.map(v => li(l("bLigne", v.nom, sg(v.var_jour_pct), f2(v.cours), sg(v.ecart_plus_bas_52s_pct), f2(v.rsi14, 0))))].join("\n");
+  },
+  ordre(a) {
+    const r = executer("verifier_ordre", a);
+    if (r.introuvable || r.erreur) return String(r.introuvable || r.erreur);
+    const nom = r.valeur.split(" ").slice(1).join(" "), out = [];
+    if (r.sens === "achat") {
+      out.push(l("ordA", f2(r.quantite, 0), nom, mad2(r.prix, 2), mad2(r.montant_mad)), "",
+        li(l("ecart", sg(r.ecart_dernier_cours_pct), mad2(r.dernier_cours, 2))), li(l("fa", mad2(r.frais_achat_mad, 2), mad2(r.cout_total_mad))),
+        li(l("pr", mad2(r.prix_revente_minimum_sans_perte, 2), sg(r.hausse_minimum_sans_perte_pct))),
+        li(l("obj", r.objectif.pct, mad2(r.objectif.prix, 2), mad2(r.objectif.gain_net_mad))), li(l("sor", r.sortie.pct, mad2(r.sortie.prix, 2), mad2(r.sortie.perte_nette_mad))),
+        li(l("poids", f2(r.poids_capital_pct, 1) + " %", mad2(r.montant_prevu_par_ligne_mad))));
+      const h = r.historique_strategie;
+      if (h && h.executes) out.push(li(l("hist", h.executes, f2(h.pct_objectif_atteint, 0) + " %", sg(h.resultat_net_moyen_pct))));
+    } else {
+      out.push(l("ordV", f2(r.quantite, 0), nom, mad2(r.prix, 2), mad2(r.montant_mad)), "",
+        li(l("ecart", sg(r.ecart_dernier_cours_pct), mad2(r.dernier_cours, 2))), li(l("fv", mad2(r.frais_vente_mad, 2), mad2(r.produit_net_mad))));
+      if (r.position) out.push(li(l("pos", f2(r.position.quantite, 0), mad2(r.position.prix_moyen, 2), mad2(r.position.resultat_net_vente_mad))));
+    }
+    out.push("", l("att"), ...(r.alertes_automatiques.length ? r.alertes_automatiques.map(li) : [li(l("rienAtt"))]), "", l("decision"));
+    return out.join("\n");
+  },
+  fiche(a) {
+    const r = executer("chercher_valeur", a);
+    if (r.introuvable) return String(r.introuvable);
+    const out = [l("f1", r.nom, r.symbole, mad2(r.cours, 2), sg(r.var_jour_pct), sg(r.var_5j_pct), sg(r.var_1an_pct)), "",
+      li(l("f52", f2(r.plus_haut_52s), f2(r.plus_bas_52s), sg(r.ecart_plus_bas_52s_pct))), li(l("ftech", f2(r.rsi14, 0), f2(r.mm50), f2(r.mm200))),
+      li(l("fliq", mad2(r.capitaux_moyens_jour_mad), r.liquide)), li(l("fzone", r.dans_zone_achat))];
+    const h = r.strategie_utilisateur;
+    if (h && h.executes) out.push(li(l("hist", h.executes, f2(h.pct_objectif_atteint, 0) + " %", sg(h.resultat_net_moyen_pct))));
+    if (r.signaux?.length) out.push("", l("fsig"), ...r.signaux.map(li));
+    if (r.regles_actives?.length) out.push("", l("fregles"), ...r.regles_actives.map(x => li(`${x.nom} (${x.sens})`)));
+    return out.join("\n");
+  }
+};
+const CHIPS_LOCAUX = ["marche", "portefeuille", "strategie", "baisses"];
+function calculLocal(spec) { try { return LOCAL[spec.type](spec.args || {}); } catch (e) { return null; } }
+
 /* ---------- Consignes ---------- */
 function consignes() {
   const langue = LANG === "ar" ? "en arabe (arabe standard simple, compréhensible au Maroc)" : "en français";
@@ -403,7 +564,7 @@ function bulle(role, html, cls = "") {
   fil().appendChild(d); return d;
 }
 const enBas = () => { const f = $i("ia-fil"); f.scrollTop = f.scrollHeight; };
-const etiquette = par => `<span class="par">${par === "claude" ? x("parClaude") : x("parGemini")}</span>`;
+const etiquette = par => `<span class="par">${par === "claude" ? x("parClaude") : par === "app" ? (LANG === "ar" ? "حساب التطبيق · بدون ذكاء اصطناعي" : "Calcul de l'application · sans IA") : x("parGemini")}</span>`;
 const configure = () => !!(CLES.gemini || CLES.anthropic);
 
 function rendre() {
@@ -414,17 +575,30 @@ function rendre() {
   if (!configure()) panneauAccueil();
   FIL.forEach(m => bulle(m.role, m.role === "user" ? echap(m.content) : md(m.content) + etiquette(m.par)));
   $i("ia-chips").innerHTML = `<button class="ia-chip k" type="button" data-ordre="1">${x("chipOrdre")}</button>`
-    + x("chips").map(c => `<button class="ia-chip" type="button">${echap(c)}</button>`).join("")
+    + x("chips").map((c, i) => `<button class="ia-chip" type="button" data-i="${i}">${echap(c)}</button>`).join("")
     + (FIL.length ? `<button class="ia-chip" type="button" data-raz="1">${x("raz")}</button>` : "");
   enBas();
 }
 let rendu = false;
 function afficher() { if (!rendu) { rendre(); rendu = true; } enBas(); }
 
-async function demander(texte) {
+function repLocale(texte, local, note) {
+  const txt = calculLocal(local);
+  if (!txt) return false;
+  FIL.push({role: "user", content: texte});
+  bulle("user", echap(texte));
+  bulle("ai", (note ? `<p class="ia-note">${echap(note)}</p>` : "") + md(txt) + etiquette("app"));
+  FIL.push({role: "assistant", content: txt, par: "app"}); st.set("fil", FIL.slice(-30));
+  rendreChipsRaz(); enBas(); return true;
+}
+async function demander(texte, local = null) {
   texte = (texte || "").trim();
   if (!texte || busy) return;
-  if (!configure()) { panneauAccueil(); return; }
+  if (!configure()) {
+    if (local && repLocale(texte, local)) { bulle("ai", `<p class="ia-note">${echap(l("sansIA"))}</p>`); enBas(); return; }
+    bulle("user", echap(texte)); bulle("ai", `<p>${echap(x("sansCle"))}</p>`);
+    $i("ia-onb")?.remove(); panneauAccueil(); return;
+  }
   busy = true; $i("ia-env").disabled = true;
   FIL.push({role: "user", content: texte}); st.set("fil", FIL.slice(-30));
   bulle("user", echap(texte));
@@ -442,6 +616,11 @@ async function demander(texte) {
     const fz = e.fournisseur || (MODE === "anthropic" || !CLES.gemini ? "Claude" : "Gemini");
     const m = {sanscle: x("sansCle"), quotaSansClaude: x("quotaSansClaude"), cle: x("cleKo", fz), credit: x("creditKo"), reseau: x("reseau"),
       quota: x("erreur", "quota")}[e.type] || x("erreur", e.message);
+    if (local && e.type !== "sanscle") {
+      const txt = calculLocal(local);
+      if (txt) { rep.classList.remove("err"); rep.innerHTML = `<p class="ia-note">${echap(l("secours"))} (${echap(m)})</p>` + md(txt) + etiquette("app");
+        FIL.push({role: "user", content: texte}, {role: "assistant", content: txt, par: "app"}); st.set("fil", FIL.slice(-30)); return; }
+    }
     rep.innerHTML = `<p>${echap(m)}</p><p class="ia-note">${x("gerer")}</p>`;
     if (e.type === "sanscle") panneauAccueil();
   } finally { busy = false; $i("ia-env").disabled = false; enBas(); }
@@ -546,8 +725,10 @@ function panneauOrdre(isin) {
   $i("io-go").onclick = () => {
     const f = PAR_ISIN[$i("io-val").value], prix = parseFloat(String($i("io-prix").value).replace(",", ".")), qte = parseInt($i("io-qte").value, 10);
     if (!f || !(prix > 0) || !(qte > 0)) { $i("io-err").hidden = false; return; }
+    const obj = +($i("io-obj").value || R.obj), seuil = +($i("io-seuil").value || R.seuil);
     d.remove();
-    demander(x("ordMsg", {sens, qte, val: `${f.nom} (${f.isin})`, prix, obj: $i("io-obj").value || R.obj, seuil: $i("io-seuil").value || R.seuil}));
+    demander(x("ordMsg", {sens, qte, val: `${f.nom} (${f.isin})`, prix, obj, seuil}),
+      {type: "ordre", args: {valeur: f.isin, sens, prix, quantite: qte, objectif_pct: obj, sortie_pct: seuil}});
   };
 }
 
@@ -560,14 +741,14 @@ $i("ia-chips").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.ordre) return panneauOrdre();
   if (b.dataset.raz) { FIL = []; st.set("fil", FIL); return rendre(); }
-  demander(b.textContent);
+  demander(b.textContent, b.dataset.i != null ? {type: CHIPS_LOCAUX[+b.dataset.i]} : null);
 });
 
 // API utilisée par l'application (onglet IA, fiche d'une valeur, réglages).
 window.BVC_IA = {
   afficher,
   ouvrir() { if (typeof montrer === "function") montrer("ia"); },
-  analyser(isin) { afficher(); const f = PAR_ISIN[isin]; if (f) demander(x("ficheQ", `${f.nom} (${f.isin})`)); },
+  analyser(isin) { afficher(); const f = PAR_ISIN[isin]; if (f) demander(x("ficheQ", `${f.nom} (${f.isin})`), {type: "fiche", args: {valeur: f.isin}}); },
   verifier(isin) { afficher(); panneauOrdre(isin); },
   langue() { rendu = false; if (!vue.classList.contains("hidden")) afficher(); },
   cles
