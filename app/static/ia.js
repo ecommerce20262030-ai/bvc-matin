@@ -325,7 +325,7 @@ const LOCAL = {
   marche() {
     const r = executer("marche_du_jour", {}), m = r.marche, liq = V.filter(f => f.liquide && f.a_jour && f.var_jour != null).sort((a, b) => a.var_jour - b.var_jour);
     const z = r.zone_achat_liquides || [], k = z.filter(v => (v.strategie?.resultat_net_moyen_pct ?? -1) > 0).length;
-    return [l("seance", m.date_seance), l("hb", m.nb_hausse, m.nb_baisse, m.nb_stable), m.masi != null ? l("cap", f2(m.masi), sg(m.masi_var)) : "",
+    return [l("seance", String(m.date_seance).split("-").reverse().join("/")), l("hb", m.nb_hausse, m.nb_baisse, m.nb_stable), m.masi != null ? l("cap", f2(m.masi), sg(m.masi_var)) : "",
       "", l("baisses"), ...liq.slice(0, 5).map(f => li(`${f.nom} : ${sg(f.var_jour)}`)),
       "", l("hausses"), ...liq.slice(-5).reverse().map(f => li(`${f.nom} : ${sg(f.var_jour)}`)),
       "", l("zone", z.length, k)].join("\n");
