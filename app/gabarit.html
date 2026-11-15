@@ -117,6 +117,7 @@ table{table-layout:fixed}
 [dir=rtl] .badge{right:auto;left:calc(50% - 20px)}
 [dir=rtl] body{font-family:"Noto Sans Arabic","Segoe UI","Geeza Pro",Tahoma,-apple-system,Roboto,sans-serif}
 svg.spark,svg.big{direction:ltr}
+.langue.ia{display:inline-flex;align-items:center;text-decoration:none;font-size:13px;border-color:var(--accent,#2a9d8f)}
 .langue{border:1px solid var(--line);background:var(--surface);color:var(--text);min-width:40px;height:36px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;padding:0 10px}
 .perime{background:var(--down-bg);color:var(--down);padding:10px 12px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px}
 .plan{background:var(--surface2);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px;line-height:1.5}
@@ -131,6 +132,7 @@ svg.spark,svg.big{direction:ltr}
     <div><h1>BVC Matin</h1><div class="sub" id="seance"></div></div>
     <div style="display:flex;gap:10px;align-items:flex-end">
       <div class="sub num" id="maj" style="text-align:end"></div>
+      <a class="langue ia" id="b-ia" href="https://claude.ai/artifact/PhbA8WfscS1DewHSRDQM2r" target="_blank" rel="noopener"></a>
       <button class="langue" id="b-langue" aria-label=""></button>
     </div>
   </header>
@@ -424,6 +426,13 @@ function alertesPortefeuille() {
 }
 const htmlAlertes = l => l.map(x => `<div class="alerte ${x.t}" data-isin="${x.isin}"><div><b>${esc(x.titre)}</b>${esc(x.txt)}</div></div>`).join("");
 
+/* Copie le portefeuille et les réglages pour les coller dans le conseiller IA (rien n'est envoyé ailleurs). */
+function copierPourIA() {
+  const txt = JSON.stringify({reglages: {capital: R.capital, lignes: R.lignes, courtage: R.courtage, taxe: R.taxe, obj: R.obj, seuil: R.seuil, duree: R.duree},
+    portefeuille: PF.map(p => ({isin: p.isin, nom: p.nom, qte: p.qte, prix: p.prix, date: p.date, stop: p.stop, objectif: p.objectif}))});
+  const fini = ok => { $("#ia-msg").textContent = ok ? t("ia.copie") : t("ia.copie.ko"); if (!ok) prompt("", txt); };
+  try { navigator.clipboard.writeText(txt).then(() => fini(true), () => fini(false)); } catch (e) { fini(false); }
+}
 function rendrePortefeuille() {
   const ev = PF.map(p => ({p, ...evaluer(p)}));
   const cout = ev.reduce((s, e) => s + e.cout, 0);
@@ -435,7 +444,9 @@ function rendrePortefeuille() {
       <div class="kpi"><span>${t("pf.cout")}</span><b class="num">${mad(cout, 0)}</b></div>
       <div class="kpi"><span>${t("pf.net")}</span><b class="num ${cls(net)}">${mad(net, 0)} · ${pct(cout ? net / cout * 100 : null)}</b></div>
     </div>
-    <div class="btns"><button class="btn primary" id="b-ajout">${t("pf.ajouter")}</button></div>`;
+    <div class="btns"><button class="btn primary" id="b-ajout">${t("pf.ajouter")}</button>
+      <button class="btn" id="b-copier-ia">${t("ia.copier")}</button></div>
+    <div class="sub" id="ia-msg"></div>`;
   const al = alertesPortefeuille();
   $("#pf-alertes").innerHTML = al.length ? `<div class="card"><h2>${t("pf.alertes")}<small>${al.length}</small></h2>${htmlAlertes(al)}</div>` : "";
   $("#badge-pf").textContent = al.length; $("#badge-pf").classList.toggle("hidden", !al.length);
@@ -866,6 +877,7 @@ function textesFixes() {
   $$("[data-i18n-html]").forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
   $$("[data-i18n-ph]").forEach(el => el.placeholder = t(el.dataset.i18nPh));
   $("#b-langue").textContent = t("langue.bouton");
+  $("#b-ia").textContent = t("ia.bouton"); $("#b-ia").title = t("ia.titre");
   $("#b-langue").setAttribute("aria-label", t("langue.titre"));
   $("#b-langue").title = t("langue.titre");
 }
@@ -903,6 +915,7 @@ function montrer(v) {
 /* ---------- Événements ---------- */
 document.addEventListener("click", e => {
   const el = e.target;
+  if (el.closest("#b-copier-ia")) { copierPourIA(); return; }
   if (el.closest("#b-langue")) { LANG = LANG === "ar" ? "fr" : "ar"; store.set("langue", LANG); fermer(); return toutRendre(); }
   const nav = el.closest("nav.bas button"); if (nav) return montrer(nav.dataset.v);
   const go = el.closest("[data-goto]"); if (go) return montrer(go.dataset.goto);

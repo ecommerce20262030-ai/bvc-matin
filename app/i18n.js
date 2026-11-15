@@ -96,7 +96,9 @@ fr: {
   "bilan.explication": "Reconstitué : l'application rejoue les 120 dernières séances comme si elle avait tourné chaque jour, en validant les règles uniquement avec les données connues à ce moment-là. Achats seulement, frais inclus, sortie à la durée prévue ou au seuil de sortie.",
 
   "pf.titre": "Mon portefeuille", "pf.lignes": "{n} ligne(s)", "pf.valeur": "Valeur au dernier cours", "pf.cout": "Coût d'achat (frais inclus)",
-  "pf.net": "Plus-value nette si je vends", "pf.ajouter": "+ Ajouter un achat", "pf.alertes": "Alertes", "pf.positions": "Positions",
+  "pf.net": "Plus-value nette si je vends", "pf.ajouter": "+ Ajouter un achat",
+  "ia.bouton": "IA", "ia.titre": "Conseiller IA (votre compte Claude)", "ia.copier": "Copier pour le conseiller IA",
+  "ia.copie": "Copié. Ouvrez le conseiller (bouton IA en haut), touchez PF et collez.", "ia.copie.ko": "Copie impossible : sélectionnez le texte affiché et copiez-le.", "pf.alertes": "Alertes", "pf.positions": "Positions",
   "pf.toucher": "touche une ligne pour la modifier", "pf.col.valeur": "Valeur", "pf.col.qte": "Qté × prix", "pf.col.cours": "Cours", "pf.col.net": "Net",
   "pf.vide": "Aucune position. Ajoute tes achats pour suivre ta plus-value et recevoir des alertes.",
   "al.indispo": "Cours indisponible aujourd'hui.", "al.stop": "Seuil de perte atteint : {v} net (seuil {s}).", "al.obj": "Objectif de gain atteint : {v} net (objectif {s}).",
@@ -245,7 +247,9 @@ ar: {
   "bilan.explication": "معاد بناؤها: يعيد التطبيق تشغيل آخر 120 حصة كأنه كان يعمل كل يوم، ويؤكد القواعد فقط بالمعطيات التي كانت معروفة في ذلك الوقت. عمليات الشراء فقط، مع احتساب المصاريف، والخروج عند انتهاء المدة أو عند بلوغ حد الخروج.",
 
   "pf.titre": "محفظتي", "pf.lignes": "{n} سطر", "pf.valeur": "القيمة بآخر سعر", "pf.cout": "تكلفة الشراء (مع المصاريف)",
-  "pf.net": "فائض القيمة الصافي إذا بعت", "pf.ajouter": "+ إضافة عملية شراء", "pf.alertes": "تنبيهات", "pf.positions": "المراكز",
+  "pf.net": "فائض القيمة الصافي إذا بعت", "pf.ajouter": "+ إضافة عملية شراء",
+  "ia.bouton": "مستشار", "ia.titre": "المستشار الذكي (حسابك على Claude)", "ia.copier": "نسخ للمستشار",
+  "ia.copie": "تم النسخ. افتح المستشار (زر في الأعلى)، اضغط PF ثم الصق.", "ia.copie.ko": "تعذر النسخ: حدد النص المعروض وانسخه.", "pf.alertes": "تنبيهات", "pf.positions": "المراكز",
   "pf.toucher": "اضغط على سطر لتعديله", "pf.col.valeur": "القيمة", "pf.col.qte": "الكمية × السعر", "pf.col.cours": "السعر", "pf.col.net": "الصافي",
   "pf.vide": "لا يوجد أي مركز. أضف مشترياتك لتتبع فائض القيمة وتلقي التنبيهات.",
   "al.indispo": "السعر غير متوفر اليوم.", "al.stop": "تم بلوغ حد الخسارة: {v} صافي (الحد {s}).", "al.obj": "تم بلوغ هدف الربح: {v} صافي (الهدف {s}).",

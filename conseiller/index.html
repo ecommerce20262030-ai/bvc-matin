@@ -1,0 +1,533 @@
+<title>BVC Conseiller</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one-column phone chat — sticky header, scrolling thread, composer pinned to the bottom */
+:root {
+  --bg: #eef2f4; --surface: #ffffff; --ink: #0f1d27; --muted: #5b6b77; --line: #d5dee4;
+  --accent: #0d6e64; --accent-ink: #ffffff; --accent-soft: #dcefeb;
+  --up: #12784a; --down: #b4312b; --warn: #a8650a; --warn-soft: #fbefd9;
+  --user: #0f1d27; --user-ink: #f2f6f8;
+  --f-text: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b141b; --surface: #13202a; --ink: #e6edf1; --muted: #93a4b0; --line: #24343f;
+  --accent: #3fb3a3; --accent-ink: #062521; --accent-soft: #143a36;
+  --up: #47c487; --down: #ff7b72; --warn: #e3a746; --warn-soft: #3a2c12;
+  --user: #2a3b48; --user-ink: #eef4f7; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b141b; --surface: #13202a; --ink: #e6edf1; --muted: #93a4b0; --line: #24343f;
+  --accent: #3fb3a3; --accent-ink: #062521; --accent-soft: #143a36;
+  --up: #47c487; --down: #ff7b72; --warn: #e3a746; --warn-soft: #3a2c12;
+  --user: #2a3b48; --user-ink: #eef4f7; color-scheme: dark }
+:root[lang="ar"] { --f-text: "IBM Plex Sans Arabic", "IBM Plex Sans", system-ui, sans-serif; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-text); overflow-x: hidden; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; unicode-bidi: isolate; direction: ltr; display: inline-block; }
+.gut { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar { display: flex; align-items: center; gap: 10px; padding-block: 10px; max-width: 760px; margin: 0 auto; }
+.mark { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.mark svg { width: 20px; height: 20px; }
+.ttl { min-width: 0; flex: 1; }
+.ttl b { display: block; font-size: 16px; font-weight: 600; letter-spacing: .01em; }
+.ttl span { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ib { border: 1px solid var(--line); background: transparent; border-radius: 9px; height: 34px; min-width: 34px; padding: 0 10px; font-size: 13px; font-weight: 600; }
+.ib.on { background: var(--accent-soft); border-color: var(--accent); }
+
+main { max-width: 760px; margin: 0 auto; padding-block: 14px 190px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 92%; padding: 11px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); overflow-wrap: anywhere; min-width: 0; }
+.msg.user { align-self: flex-end; background: var(--user); color: var(--user-ink); border-color: transparent; white-space: pre-wrap; }
+.msg.ai { align-self: flex-start; }
+.msg p { margin: 0 0 8px; } .msg p:last-child { margin-bottom: 0; }
+.msg ul { margin: 4px 0 8px; padding-inline-start: 20px; } .msg li { margin: 2px 0; }
+.msg h4 { margin: 10px 0 4px; font-size: 14px; letter-spacing: .02em; }
+.msg .think { color: var(--muted); font-style: italic; }
+.msg.err { border-color: var(--down); }
+.snap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+.snap div { border: 1px solid var(--line); border-radius: 10px; padding: 8px; min-width: 0; }
+.snap small { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.snap b { font-size: 17px; }
+.up { color: var(--up); } .down { color: var(--down); }
+.note { font-size: 12.5px; color: var(--muted); border-inline-start: 3px solid var(--warn); padding-inline-start: 9px; margin-top: 8px; }
+
+.dock { position: fixed; inset: auto 0 0; z-index: 6; background: linear-gradient(to top, var(--bg) 70%, transparent); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+.dock .in { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-top: 14px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 12px; font-size: 13px; white-space: nowrap; }
+.chip.k { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.comp { display: flex; gap: 8px; align-items: flex-end; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 6px; }
+.comp textarea { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; resize: none; max-height: 140px; padding: 7px 8px; outline: none; }
+.send { flex: none; width: 40px; height: 40px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.send:disabled { opacity: .45; cursor: default; }
+.send svg { width: 18px; height: 18px; }
+:root[dir="rtl"] .send svg { transform: scaleX(-1); }
+
+.sheet { position: fixed; inset: 0; z-index: 20; background: rgba(5, 12, 18, .45); display: flex; align-items: flex-end; justify-content: center; }
+.panel { background: var(--surface); width: 100%; max-width: 560px; max-height: 88%; overflow-y: auto; border-radius: 18px 18px 0 0; padding-block: 18px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; }
+.panel h3 { margin: 0; font-size: 17px; text-wrap: balance; }
+.panel p.h { margin: 0; color: var(--muted); font-size: 13px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 500; letter-spacing: .02em; min-width: 0; }
+input, select, textarea.f { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; width: 100%; min-width: 0; }
+textarea.f { min-height: 96px; font-family: var(--f-num); font-size: 12.5px; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.seg button { flex: 1; border: 0; background: transparent; padding: 9px; font-weight: 600; }
+.seg button.on { background: var(--accent); color: var(--accent-ink); }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { border: 1px solid var(--line); background: transparent; border-radius: 10px; padding: 10px 14px; font-weight: 600; }
+.btn.p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.pfl { display: flex; flex-direction: column; gap: 6px; }
+.pfl div { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; border-bottom: 1px dashed var(--line); padding-bottom: 5px; }
+.ok { color: var(--up); font-size: 13px; } .ko { color: var(--down); font-size: 13px; }
+.gate { text-align: center; padding: 30px 10px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .msg { animation: in .18s ease-out; } @keyframes in { from { transform: translateY(4px); opacity: .6; } } }
+</style>
+
+<header class="gut">
+  <div class="bar">
+    <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 7-8"/><path d="M15 7h4v4"/></svg></div>
+    <div class="ttl"><b id="t-titre">BVC Conseiller</b><span id="t-sous">…</span></div>
+    <button class="ib" id="b-ordre" type="button" aria-label="Vérifier un ordre">✓</button>
+    <button class="ib" id="b-pf" type="button" aria-label="Mon portefeuille">PF</button>
+    <button class="ib" id="b-lang" type="button">ع</button>
+  </div>
+</header>
+
+<main class="gut" id="fil" aria-live="polite"></main>
+
+<div class="dock gut">
+  <div class="in">
+    <div class="chips" id="chips"></div>
+    <form class="comp" id="form">
+      <textarea id="saisie" rows="1" autocomplete="off"></textarea>
+      <button class="send" id="envoyer" type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button>
+    </form>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="panel gut" id="panel"></div></div>
+
+<script>
+(() => {
+/* ---------- textes FR / AR ---------- */
+const T = {
+  fr: {
+    sous: d => `Séance du ${d} · cours différés`, sousKo: "Données indisponibles",
+    ph: "Votre question…",
+    bienvenue: "Bonjour. Je suis votre assistant d'analyse pour la Bourse de Casablanca. Je lis le diagnostic du matin de toutes les valeurs, je vérifie vos ordres avant que vous les passiez et je vous explique les risques.",
+    hausse: "En hausse", baisse: "En baisse", zone: "Zone d'achat",
+    avert: "Je ne suis pas un conseiller financier agréé : je donne des faits et des calculs, la décision vous appartient. Je ne passe aucun ordre.",
+    chips: ["Résumé du marché ce matin", "Que surveiller dans mon portefeuille ?", "Ma stratégie +2 % marche-t-elle en ce moment ?", "Quelles valeurs liquides ont le plus baissé ?"],
+    chipOrdre: "✓ Vérifier un ordre",
+    reflexion: "J'analyse les données…",
+    errSample: "Le conseiller n'est pas disponible dans cette vue. Ouvrez la page connectée à votre compte Claude.",
+    errRefus: "Vous avez refusé l'accès à Claude pour cette page. Rechargez la page pour réessayer.",
+    errLimite: "Trop de questions d'affilée : patientez une minute puis réessayez.",
+    errAutre: "La réponse a échoué. Réessayez.",
+    errData: "Les données du jour n'ont pas pu être lues. Le conseiller peut répondre aux questions générales, sans chiffres du marché.",
+    pfTitre: "Mon portefeuille et mes réglages",
+    pfAide: "Dans BVC Matin, onglet Portefeuille, touchez « Copier pour le conseiller IA », puis collez ici. Ou écrivez une ligne par position : SYMBOLE QUANTITÉ PRIX (ex. : MNG 10 1130).",
+    pfColler: "Coller ici", pfEnr: "Enregistrer", pfVider: "Tout effacer", pfFermer: "Fermer",
+    pfOk: n => `${n} position(s) enregistrée(s) sur ce téléphone.`, pfKo: "Je n'ai pas compris ce texte. Vérifiez le format.",
+    capital: "Capital total (MAD)", courtage: "Courtage % (hors TVA)", lignes: "Nombre de lignes max", objectif: "Objectif de revente %",
+    vide: "Aucune position enregistrée.", priv: "Ces informations restent dans ce navigateur. Elles ne sont envoyées à Claude qu'au moment où vous posez une question.",
+    ordTitre: "Vérifier un ordre avant de le passer", ordAide: "L'IA contrôle les frais, la liquidité, l'historique de la valeur et votre stratégie. Elle ne passe pas l'ordre.",
+    ordVal: "Valeur (nom ou symbole)", achat: "Achat", vente: "Vente", prix: "Prix limite (MAD)", qte: "Quantité", obj: "Objectif %", seuil: "Seuil de sortie %",
+    ordGo: "Vérifier avec l'IA", ordManque: "Indiquez la valeur, le prix et la quantité.",
+    ordMsg: (o) => `Vérifie mon ordre avant que je le passe : ${o.sens === "achat" ? "ACHAT" : "VENTE"} de ${o.qte} ${o.val} à ${o.prix} MAD (objectif +${o.obj} %, seuil de sortie -${o.seuil} %). Donne les faits, les frais, les risques et ce qui plaide pour et contre. La décision m'appartient.`,
+    effacer: "Nouvelle conversation", lang: "ع"
+  },
+  ar: {
+    sous: d => `حصة ${d} · أسعار مؤجلة`, sousKo: "المعطيات غير متوفرة",
+    ph: "اكتب سؤالك…",
+    bienvenue: "مرحبا. أنا مساعدك لتحليل بورصة الدار البيضاء. أقرأ تشخيص الصباح لجميع الأسهم، وأراجع أوامرك قبل تنفيذها، وأشرح لك المخاطر.",
+    hausse: "في ارتفاع", baisse: "في انخفاض", zone: "منطقة الشراء",
+    avert: "لست مستشارا ماليا معتمدا: أقدم وقائع وحسابات، والقرار لك. لا أنفذ أي أمر.",
+    chips: ["ملخص السوق هذا الصباح", "ماذا أراقب في محفظتي؟", "هل استراتيجيتي ‎+2%‎ تنجح حاليا؟", "ما الأسهم السائلة الأكثر انخفاضا؟"],
+    chipOrdre: "✓ مراجعة أمر",
+    reflexion: "أحلل المعطيات…",
+    errSample: "المستشار غير متاح في هذا العرض. افتح الصفحة من حسابك على Claude.",
+    errRefus: "رفضت السماح لـ Claude بهذه الصفحة. أعد تحميل الصفحة للمحاولة من جديد.",
+    errLimite: "أسئلة كثيرة متتالية: انتظر دقيقة ثم أعد المحاولة.",
+    errAutre: "فشل الجواب. أعد المحاولة.",
+    errData: "تعذرت قراءة معطيات اليوم. يمكن للمستشار الإجابة عن الأسئلة العامة دون أرقام السوق.",
+    pfTitre: "محفظتي وإعداداتي",
+    pfAide: "في تطبيق BVC Matin، تبويب المحفظة، اضغط «نسخ للمستشار»، ثم الصق هنا. أو اكتب سطرا لكل سهم: الرمز الكمية السعر (مثال: MNG 10 1130).",
+    pfColler: "الصق هنا", pfEnr: "حفظ", pfVider: "مسح الكل", pfFermer: "إغلاق",
+    pfOk: n => `تم حفظ ${n} سهم في هذا الهاتف.`, pfKo: "لم أفهم هذا النص. تحقق من الصيغة.",
+    capital: "رأس المال (درهم)", courtage: "العمولة % (دون ضريبة)", lignes: "أقصى عدد للأسهم", objectif: "هدف إعادة البيع %",
+    vide: "لا توجد أسهم محفوظة.", priv: "تبقى هذه المعلومات في هذا المتصفح، ولا ترسل إلى Claude إلا عند طرح سؤال.",
+    ordTitre: "مراجعة أمر قبل تنفيذه", ordAide: "يراجع الذكاء الاصطناعي العمولات والسيولة وتاريخ السهم واستراتيجيتك. لا ينفذ الأمر.",
+    ordVal: "السهم (الاسم أو الرمز)", achat: "شراء", vente: "بيع", prix: "السعر المحدد (درهم)", qte: "الكمية", obj: "الهدف %", seuil: "حد الخروج %",
+    ordGo: "راجع مع الذكاء الاصطناعي", ordManque: "أدخل السهم والسعر والكمية.",
+    ordMsg: (o) => `راجع أمري قبل أن أنفذه: ${o.sens === "achat" ? "شراء" : "بيع"} ${o.qte} من ${o.val} بسعر ${o.prix} درهم (الهدف ‎+${o.obj}%‎، حد الخروج ‎-${o.seuil}%‎). أعطني الوقائع والعمولات والمخاطر وما يؤيد وما يعارض. القرار لي.`,
+    effacer: "محادثة جديدة", lang: "FR"
+  }
+};
+
+/* ---------- stockage local (ce navigateur seulement) ---------- */
+const mem = {
+  get(k, d) { try { const v = localStorage.getItem("bvcc." + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("bvcc." + k, JSON.stringify(v)); } catch (e) {} }
+};
+let LANG = mem.get("lang", "fr");
+let PF = mem.get("pf", []);
+let R = Object.assign({capital: 50000, courtage: 0.6, taxe: 0.1, lignes: 5, obj: 2, seuil: 3, duree: 5}, mem.get("reg", {}));
+let FIL = mem.get("fil", []);           // [{role, content}]
+let D = null, DATA_ERR = false, sample = null, SAMPLE_OFF = false, busy = false;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const t = (k, ...a) => { const v = T[LANG][k]; return typeof v === "function" ? v(...a) : v; };
+const fr = (x, d = 2) => x == null || isNaN(x) ? "—" : Number(x).toLocaleString("fr-FR", {minimumFractionDigits: d, maximumFractionDigits: d});
+const r2 = x => x == null || isNaN(x) ? null : Math.round(x * 100) / 100;
+const dateFr = s => s ? s.split("-").reverse().join("/") : "—";
+
+/* ---------- frais et calculs (mêmes règles que BVC Matin) ---------- */
+const tauxAchat = () => R.courtage * 1.2 / 100;                     // courtage + TVA 20 %
+const tauxVente = () => R.courtage * 1.2 / 100 + R.taxe / 100;      // + taxe sur la vente
+const net = g => ((1 + g / 100) * (1 - tauxVente()) - (1 + tauxAchat())) / (1 + tauxAchat()) * 100;
+const OBJS = [1, 1.5, 2, 3, 5], SEUILS = [2, 3, 5], DUREES = [1, 3, 5, 10];
+const proche = (l, x) => l.reduce((a, b) => Math.abs(b - x) < Math.abs(a - x) ? b : a);
+function statsGrille(f, o = R.obj, s = R.seuil, d = R.duree) {
+  const ko = proche(OBJS, o), ks = proche(SEUILS, s), kd = proche(DUREES, d);
+  const g = f.strategie?.grille?.[`${ko}|${ks}|${kd}`];
+  if (!g) return null;
+  const [ex, ga, so, ech, moy, med, ordres] = g;
+  const base = {config: {objectif_pct: ko, seuil_pct: ks, duree_max: kd}, periode_depuis: f.strategie.depuis, ordres_places: ordres, executes: ex};
+  if (!ex) return base;
+  return Object.assign(base, {
+    pct_objectif_atteint: r2(ga / ex * 100), pct_sortie_au_seuil: r2(so / ex * 100), pct_vente_a_echeance: r2(ech / ex * 100),
+    delai_median_seances: med, resultat_net_moyen_pct: r2((ga * net(ko) + so * net(-ks) + ech * net(moy)) / ex),
+    pct_ordres_executes: ordres ? r2(ex / ordres * 100) : null});
+}
+const V = () => D?.valeurs || [];
+function trouver(q) {
+  if (!q) return null;
+  const n = String(q).trim().toUpperCase();
+  return V().find(f => f.isin.toUpperCase() === n) || V().find(f => f.nom.toUpperCase() === n)
+    || V().find(f => f.nom.toUpperCase().includes(n)) || V().find(f => n.includes(f.nom.toUpperCase()));
+}
+function fiche(f, detail) {
+  const x = {symbole: f.isin, nom: f.nom, derniere_seance: f.date, a_jour: f.a_jour, cours: f.cours,
+    var_jour_pct: f.var_jour, var_5j_pct: f.var_5j, var_1m_pct: f.var_1m, var_depuis_1er_janvier_pct: f.var_ytd, var_1an_pct: f.var_1a,
+    plus_haut_52s: f.haut_52s, plus_bas_52s: f.bas_52s, ecart_plus_haut_pct: f.ecart_haut_52s, ecart_plus_bas_pct: f.ecart_bas_52s,
+    rsi14: f.rsi14, mm50: f.mm50, mm200: f.mm200, volatilite_annuelle_pct: f.volatilite, ratio_volume_vs_moyenne: f.ratio_volume,
+    liquide: f.liquide, capitaux_moyens_jour_mad: f.capitaux_moy, seances_actives_pct: f.jours_actifs_pct, amplitude_moyenne_seance_pct: f.amplitude_moy,
+    signaux: f.signaux, regles_actives: f.regles_actives, dans_zone_achat_strategie: f.strategie?.zone};
+  if (detail) { x.strategie_utilisateur = statsGrille(f); x.cours_60_dernieres_seances = f.cours_60; x.evenements = f.evenements; }
+  return x;
+}
+
+/* ---------- outils que Claude peut appeler (exécutés dans la page) ---------- */
+const OUTILS = [
+  {name: "marche_du_jour", description: "Résumé du marché de la dernière séance : date, hausses/baisses, capitalisation totale, plus fortes hausses et baisses, valeurs en zone d'achat de la stratégie, bilan historique des règles.",
+   inputSchema: {type: "object", properties: {}},
+   execute() {
+     if (!D) throw new Error("données indisponibles");
+     const ok = V().filter(f => f.a_jour && f.var_jour != null);
+     const tri = [...ok].sort((a, b) => a.var_jour - b.var_jour);
+     const court = f => ({symbole: f.isin, nom: f.nom, cours: f.cours, var_jour_pct: f.var_jour, liquide: f.liquide});
+     const zone = V().filter(f => f.strategie?.zone && f.liquide).map(f => ({symbole: f.isin, nom: f.nom, cours: f.cours, var_5j_pct: f.var_5j, ecart_plus_bas_pct: f.ecart_bas_52s, strategie: statsGrille(f)}));
+     return {genere_le: D.genere_le, marche: D.marche, note_indice: "masi = capitalisation boursière totale en milliards de MAD (le MASI officiel n'est pas disponible)",
+       plus_fortes_baisses: tri.slice(0, 8).map(court), plus_fortes_hausses: tri.slice(-8).reverse().map(court),
+       zone_achat_liquides: zone, reglages_utilisateur: R, bilan_regles_reconstitue: D.bilan_reconstitue, valeurs_non_diagnostiquees: D.echecs};
+   }},
+  {name: "chercher_valeur", description: "Fiche détaillée d'une valeur (nom ou symbole, ex. MNG, MANAGEM, ATW, IAM) : cours, variations, plus haut/bas 52 semaines, RSI, moyennes mobiles, liquidité, signaux, règles actives, résultats historiques de la stratégie de l'utilisateur, 60 derniers cours.",
+   inputSchema: {type: "object", properties: {valeur: {type: "string"}}, required: ["valeur"]},
+   execute({valeur}) {
+     const f = trouver(valeur);
+     if (!f) return {introuvable: valeur, valeurs_disponibles: V().map(v => `${v.isin} ${v.nom}`).join(", ")};
+     return fiche(f, true);
+   }},
+  {name: "lister_valeurs", description: "Liste filtrée et triée de valeurs. filtre : 'baisse' (plus fortes baisses du jour), 'hausse', 'baisse_5j', 'zone' (zone d'achat de la stratégie), 'signaux_achat', 'signaux_vente', 'pres_plus_bas' (proches du plus bas 52 sem.), 'toutes'. liquides_seulement filtre les valeurs assez échangées.",
+   inputSchema: {type: "object", properties: {filtre: {type: "string"}, liquides_seulement: {type: "boolean"}, limite: {type: "number"}}, required: ["filtre"]},
+   execute({filtre, liquides_seulement = true, limite = 12}) {
+     let l = V().filter(f => !liquides_seulement || f.liquide);
+     const par = k => (a, b) => (a[k] ?? 1e9) - (b[k] ?? 1e9);
+     const a = {
+       baisse: () => l.filter(f => f.a_jour).sort(par("var_jour")),
+       hausse: () => l.filter(f => f.a_jour).sort(par("var_jour")).reverse(),
+       baisse_5j: () => l.sort(par("var_5j")),
+       zone: () => l.filter(f => f.strategie?.zone).sort((x, y) => (statsGrille(y)?.resultat_net_moyen_pct ?? -99) - (statsGrille(x)?.resultat_net_moyen_pct ?? -99)),
+       signaux_achat: () => l.filter(f => f.regles_actives?.some(r => r.sens === "achat")),
+       signaux_vente: () => l.filter(f => f.regles_actives?.some(r => r.sens === "vente")),
+       pres_plus_bas: () => l.sort(par("ecart_bas_52s")),
+       toutes: () => l.sort((x, y) => x.nom.localeCompare(y.nom))
+     }[filtre];
+     if (!a) throw new Error("filtre inconnu");
+     return a().slice(0, Math.min(40, limite)).map(f => ({symbole: f.isin, nom: f.nom, cours: f.cours, var_jour_pct: f.var_jour, var_5j_pct: f.var_5j,
+       ecart_plus_bas_pct: f.ecart_bas_52s, rsi14: f.rsi14, liquide: f.liquide, capitaux_moyens_jour_mad: f.capitaux_moy,
+       regles_actives: (f.regles_actives || []).map(r => `${r.sens}:${r.code}${r.fiable ? " (validée)" : " (non validée)"}`),
+       strategie_net_moyen_pct: statsGrille(f)?.resultat_net_moyen_pct ?? null}));
+   }},
+  {name: "verifier_ordre", description: "Contrôle chiffré d'un ordre AVANT que l'utilisateur le passe : écart au dernier cours, frais réels (courtage + TVA, taxe à la vente), prix de revente minimum sans perte, gain/perte nets à l'objectif et au seuil, poids dans le capital, part des échanges quotidiens, historique de la stratégie sur cette valeur, position existante. Renvoie aussi des alertes automatiques.",
+   inputSchema: {type: "object", properties: {valeur: {type: "string"}, sens: {type: "string", enum: ["achat", "vente"]}, prix: {type: "number"}, quantite: {type: "number"},
+     objectif_pct: {type: "number"}, seuil_pct: {type: "number"}, duree_max_seances: {type: "number"}}, required: ["valeur", "sens", "prix", "quantite"]},
+   execute({valeur, sens, prix, quantite, objectif_pct = R.obj, seuil_pct = R.seuil, duree_max_seances = R.duree}) {
+     const f = trouver(valeur);
+     if (!f) return {introuvable: valeur};
+     if (!(prix > 0 && quantite > 0)) throw new Error("prix et quantité doivent être positifs");
+     const montant = prix * quantite, fa = montant * tauxAchat();
+     const alertes = [];
+     const ecart = (prix / f.cours - 1) * 100;
+     const out = {valeur: `${f.isin} ${f.nom}`, sens, prix, quantite, montant_mad: r2(montant), dernier_cours: f.cours, derniere_seance: f.date,
+       donnees_a_jour: f.a_jour, ecart_au_dernier_cours_pct: r2(ecart), reglages: {courtage_pct_ht: R.courtage, taxe_vente_pct: R.taxe, capital_mad: R.capital, lignes_max: R.lignes}};
+     if (!f.a_jour) alertes.push("La valeur n'a pas été échangée à la dernière séance : le cours peut être ancien.");
+     if (Math.abs(ecart) > 6) alertes.push(`Prix limite éloigné de ${fr(ecart, 1)} % du dernier cours : l'ordre risque de ne pas être exécuté aujourd'hui (seuils de variation de séance).`);
+     if (!f.liquide) alertes.push("Valeur peu liquide : achat et revente peuvent être difficiles au prix voulu.");
+     if (f.capitaux_moy) {
+       const part = montant / f.capitaux_moy * 100;
+       out.part_des_capitaux_echanges_par_jour_pct = r2(part);
+       if (part > 10) alertes.push(`L'ordre représente ${fr(part, 0)} % des capitaux échangés en moyenne par jour : exécution partielle ou impact sur le prix probables.`);
+     }
+     if (sens === "achat") {
+       const cible = prix * (1 + objectif_pct / 100), stop = prix * (1 - seuil_pct / 100);
+       const cout = montant + fa, pr = prix * (1 + tauxAchat()) / (1 - tauxVente());
+       Object.assign(out, {frais_achat_mad: r2(fa), cout_total_mad: r2(cout), prix_revente_minimum_sans_perte: r2(pr),
+         hausse_minimum_sans_perte_pct: r2((pr / prix - 1) * 100),
+         objectif: {pct: objectif_pct, prix: r2(cible), gain_net_mad: r2(cible * quantite * (1 - tauxVente()) - cout), gain_net_pct: r2(net(objectif_pct))},
+         seuil_sortie: {pct: seuil_pct, prix: r2(stop), perte_nette_mad: r2(stop * quantite * (1 - tauxVente()) - cout), perte_nette_pct: r2(net(-seuil_pct))},
+         poids_dans_capital_pct: r2(cout / R.capital * 100), montant_prevu_par_ligne_mad: r2(R.capital / R.lignes)});
+       if (objectif_pct <= (pr / prix - 1) * 100 + 0.2) alertes.push("L'objectif couvre à peine les frais : le gain net sera quasi nul.");
+       if (cout > R.capital / R.lignes * 1.15) alertes.push(`Cet ordre dépasse le montant prévu par ligne (${fr(R.capital / R.lignes, 0)} MAD).`);
+       if (f.amplitude_moy && objectif_pct > f.amplitude_moy * 1.5 && duree_max_seances <= 1) alertes.push(`Objectif de ${objectif_pct} % en une séance alors que la valeur bouge en moyenne de ${fr(f.amplitude_moy, 1)} % par séance.`);
+       const st = statsGrille(f, objectif_pct, seuil_pct, duree_max_seances);
+       out.historique_strategie = st;
+       if (st?.resultat_net_moyen_pct != null && st.resultat_net_moyen_pct < 0) alertes.push(`Sur ~3 ans, cette méthode sur cette valeur a donné en moyenne ${fr(st.resultat_net_moyen_pct)} % net par opération (négatif après frais).`);
+       if (st && st.executes < 10) alertes.push("Trop peu d'opérations passées pour juger la méthode sur cette valeur.");
+     } else {
+       const fv = montant * tauxVente();
+       out.frais_vente_mad = r2(fv); out.produit_net_mad = r2(montant - fv);
+       const pos = PF.filter(p => p.isin === f.isin);
+       if (pos.length) {
+         const q = pos.reduce((a, p) => a + p.qte, 0), pm = pos.reduce((a, p) => a + p.qte * p.prix, 0) / q;
+         const coutAchat = Math.min(quantite, q) * pm * (1 + tauxAchat());
+         out.position_detenue = {quantite: q, prix_moyen: r2(pm), resultat_net_de_cette_vente_mad: r2(Math.min(quantite, q) * prix * (1 - tauxVente()) - coutAchat)};
+         if (quantite > q) alertes.push(`Vous voulez vendre ${quantite} titres mais le portefeuille enregistré n'en contient que ${q}.`);
+       } else alertes.push("Aucune position enregistrée sur cette valeur dans le portefeuille collé.");
+     }
+     out.regles_actives = f.regles_actives; out.signaux = f.signaux; out.rsi14 = f.rsi14;
+     out.ecart_plus_bas_52s_pct = f.ecart_bas_52s; out.ecart_plus_haut_52s_pct = f.ecart_haut_52s;
+     out.alertes_automatiques = alertes;
+     return out;
+   }},
+  {name: "mon_portefeuille", description: "Positions que l'utilisateur a enregistrées, évaluées au dernier cours, avec résultat net (frais d'achat et de vente inclus), signaux et alertes par ligne.",
+   inputSchema: {type: "object", properties: {}},
+   execute() {
+     if (!PF.length) return {vide: true, aide: "L'utilisateur peut coller son portefeuille via le bouton PF."};
+     return {reglages: R, positions: PF.map(p => {
+       const f = trouver(p.isin); const c = f?.cours;
+       const cout = p.qte * p.prix * (1 + tauxAchat());
+       const val = c ? p.qte * c * (1 - tauxVente()) : null;
+       return {symbole: p.isin, nom: f?.nom || p.nom, quantite: p.qte, prix_achat: p.prix, date_achat: p.date, stop_utilisateur: p.stop, objectif_utilisateur: p.objectif,
+         cours: c, var_jour_pct: f?.var_jour, resultat_net_mad: val == null ? null : r2(val - cout), resultat_net_pct: val == null ? null : r2((val / cout - 1) * 100),
+         signaux: f?.signaux, regles_actives: f?.regles_actives?.map(r => `${r.sens}:${r.nom}`), rsi14: f?.rsi14, liquide: f?.liquide};
+     })};
+   }}
+];
+
+/* ---------- consignes envoyées à chaque question ---------- */
+function consignes() {
+  const langue = LANG === "ar" ? "en arabe (arabe standard simple, compréhensible au Maroc)" : "en français";
+  return `Tu es « BVC Conseiller », l'assistant d'analyse de l'application BVC Matin pour la Bourse de Casablanca. Tu aides un particulier marocain qui fait de l'achat-revente à court terme (acheter des valeurs liquides près de leurs plus bas et revendre vers +${R.obj} %). Sa femme utilise aussi l'application.
+
+Règles absolues :
+- Réponds ${langue}, sauf si l'utilisateur écrit dans l'autre langue : suis alors sa langue.
+- Appuie chaque chiffre sur les outils (marche_du_jour, chercher_valeur, lister_valeurs, verifier_ordre, mon_portefeuille). N'invente jamais un cours, un volume ou une statistique. Si une donnée manque, dis-le.
+- Les données datent de la dernière séance (${D ? dateFr(D.marche.date_seance) : "inconnue"}), cours différés : rappelle-le quand c'est utile. Aujourd'hui nous sommes le ${new Date().toLocaleDateString("fr-FR")}.
+- Tu n'es pas un conseiller financier agréé. Tu donnes des faits, des calculs, des risques et des arguments pour et contre ; tu ne dis jamais « achetez » ou « vendez » comme un ordre. Termine toute vérification d'ordre par une phrase rappelant que la décision lui appartient.
+- Tu ne passes aucun ordre et ne demandes jamais d'identifiants.
+- Pour toute question sur un achat ou une vente précise, appelle verifier_ordre et commente ses alertes_automatiques une par une.
+- Sois honnête quand les statistiques sont défavorables (par exemple un résultat net moyen négatif après frais) même si l'utilisateur espère l'inverse.
+- Le résultat historique d'une méthode ne garantit rien pour l'avenir ; dis-le sans en faire une litanie.
+
+Style : réponses courtes, lisibles sur téléphone. Phrases simples. Listes à puces « - » quand il y a plusieurs points, **gras** pour les chiffres clés. Pas de tableaux. Montants en MAD avec espaces comme séparateurs de milliers.
+
+Réglages de l'utilisateur : capital ${R.capital} MAD réparti sur ${R.lignes} lignes au plus, courtage ${R.courtage} % HT (+ TVA 20 %), taxe ${R.taxe} % à la vente, objectif +${R.obj} %, seuil de sortie -${R.seuil} %, durée max ${R.duree} séances.
+Portefeuille enregistré : ${PF.length ? PF.length + " ligne(s) (outil mon_portefeuille)" : "aucun"}.`;
+}
+
+/* ---------- affichage ---------- */
+function md(s) {
+  const lignes = esc(s).split("\n"); let html = "", liste = false;
+  const inl = x => x.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, "$1<i>$2</i>");
+  for (const l of lignes) {
+    const m = l.match(/^\s*(?:[-•*]|\d+[.)])\s+(.*)/);
+    if (m) { if (!liste) { html += "<ul>"; liste = true; } html += `<li>${inl(m[1])}</li>`; continue; }
+    if (liste) { html += "</ul>"; liste = false; }
+    const h = l.match(/^#{1,4}\s+(.*)/);
+    if (h) html += `<h4>${inl(h[1])}</h4>`; else if (l.trim()) html += `<p>${inl(l)}</p>`;
+  }
+  return html + (liste ? "</ul>" : "");
+}
+function bulle(role, html, cls = "") {
+  const d = document.createElement("div");
+  d.className = `msg ${role === "user" ? "user" : "ai"} ${cls}`;
+  d.innerHTML = html; $("#fil").appendChild(d); return d;
+}
+const enBas = () => window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
+
+function accueil() {
+  const m = D?.marche;
+  const snap = m ? `<div class="snap">
+    <div><small>${t("hausse")}</small><b class="num up">${m.nb_hausse}</b></div>
+    <div><small>${t("baisse")}</small><b class="num down">${m.nb_baisse}</b></div>
+    <div><small>${t("zone")}</small><b class="num">${V().filter(f => f.strategie?.zone && f.liquide).length}</b></div></div>` : "";
+  return `<p>${t("bienvenue")}</p>${snap}${DATA_ERR ? `<p class="ko">${t("errData")}</p>` : ""}<div class="note">${t("avert")}</div>`;
+}
+function rendre() {
+  const root = document.documentElement;
+  root.lang = LANG; root.dir = LANG === "ar" ? "rtl" : "ltr";
+  $("#t-sous").textContent = D ? t("sous", dateFr(D.marche.date_seance)) : (DATA_ERR ? t("sousKo") : "…");
+  $("#b-lang").textContent = t("lang");
+  $("#saisie").placeholder = t("ph");
+  $("#fil").innerHTML = "";
+  if (SAMPLE_OFF) { bulle("ai", `<div class="gate">${esc(SAMPLE_OFF)}</div>`); }
+  bulle("ai", accueil());
+  FIL.forEach(m => bulle(m.role, m.role === "user" ? esc(m.content) : md(m.content)));
+  $("#chips").innerHTML = `<button class="chip k" type="button" data-ordre="1">${t("chipOrdre")}</button>`
+    + t("chips").map(c => `<button class="chip" type="button">${esc(c)}</button>`).join("")
+    + (FIL.length ? `<button class="chip" type="button" data-raz="1">↺ ${t("effacer")}</button>` : "");
+  $("#envoyer").disabled = busy || !!SAMPLE_OFF;
+}
+
+/* ---------- dialogue avec Claude ---------- */
+async function demander(texte) {
+  texte = texte.trim();
+  if (!texte || busy || SAMPLE_OFF) return;
+  if (!sample) { SAMPLE_OFF = t("errSample"); rendre(); return; }
+  busy = true; $("#envoyer").disabled = true;
+  FIL.push({role: "user", content: texte}); mem.set("fil", FIL.slice(-30));
+  bulle("user", esc(texte));
+  const rep = bulle("ai", `<span class="think">${t("reflexion")}</span>`);
+  enBas();
+  const historique = FIL.slice(-16);
+  const entree = [{role: "user", content: consignes()}, {role: "assistant", content: "Compris. Je m'appuie uniquement sur les outils et je laisse la décision à l'utilisateur."}, ...historique];
+  try {
+    const res = await sample(entree, {
+      tools: OUTILS, cache: false, modelTier: "default",
+      onText: ({text}) => { if (text) { rep.innerHTML = md(text); } }
+    });
+    const txt = (res && res.text) || "";
+    rep.innerHTML = md(txt) || `<span class="ko">${t("errAutre")}</span>`;
+    if (txt) { FIL.push({role: "assistant", content: txt}); mem.set("fil", FIL.slice(-30)); }
+    else FIL.pop();
+  } catch (e) {
+    FIL.pop(); mem.set("fil", FIL.slice(-30));
+    const code = e && e.code;
+    if (code === "not_granted") { SAMPLE_OFF = t("errRefus"); }
+    rep.classList.add("err");
+    rep.innerHTML = `<span class="ko">${esc(code === "not_granted" ? t("errRefus") : code === "rate_limited" ? t("errLimite") : t("errAutre"))}</span>`;
+  } finally {
+    busy = false; $("#envoyer").disabled = !!SAMPLE_OFF; enBas();
+  }
+}
+
+/* ---------- portefeuille ---------- */
+function lirePortefeuille(txt) {
+  txt = txt.trim(); if (!txt) return null;
+  try {
+    const d = JSON.parse(txt);
+    const pf = Array.isArray(d) ? d : d.portefeuille;
+    if (d.reglages) ["capital", "courtage", "taxe", "obj", "seuil", "duree", "lignes"].forEach(k => { if (d.reglages[k] != null) R[k] = +d.reglages[k]; });
+    if (Array.isArray(pf)) return pf.filter(p => p.isin && p.qte > 0 && p.prix > 0).map(p => ({isin: String(p.isin).toUpperCase(), nom: p.nom || p.isin, qte: +p.qte, prix: +p.prix, date: p.date || null, stop: p.stop ?? null, objectif: p.objectif ?? null}));
+  } catch (e) {}
+  const out = [];
+  for (const l of txt.split(/\n+/)) {
+    const m = l.trim().match(/^([A-Za-z][\w .&-]*?)\s+(\d+(?:[.,]\d+)?)\s+(\d+(?:[.,]\d+)?)/);
+    if (!m) continue;
+    const f = trouver(m[1]);
+    out.push({isin: f ? f.isin : m[1].toUpperCase(), nom: f ? f.nom : m[1], qte: +m[2].replace(",", "."), prix: +m[3].replace(",", "."), date: null, stop: null, objectif: null});
+  }
+  return out.length ? out : null;
+}
+function ouvrir(html) { $("#panel").innerHTML = html; $("#sheet").hidden = false; }
+function fermer() { $("#sheet").hidden = true; }
+function panneauPF(msg = "") {
+  ouvrir(`<h3>${t("pfTitre")}</h3><p class="h">${t("pfAide")}</p>
+    <textarea class="f" id="pf-txt" placeholder="${esc(t("pfColler"))}"></textarea>
+    <div class="row2">
+      <label>${t("capital")}<input id="r-capital" type="number" inputmode="numeric" value="${R.capital}"></label>
+      <label>${t("lignes")}<input id="r-lignes" type="number" inputmode="numeric" value="${R.lignes}"></label>
+      <label>${t("courtage")}<input id="r-courtage" type="number" step="0.05" inputmode="decimal" value="${R.courtage}"></label>
+      <label>${t("objectif")}<input id="r-obj" type="number" step="0.5" inputmode="decimal" value="${R.obj}"></label>
+    </div>
+    <div class="acts"><button class="btn p" id="pf-enr" type="button">${t("pfEnr")}</button><button class="btn" id="pf-vider" type="button">${t("pfVider")}</button><button class="btn" id="pf-fermer" type="button">${t("pfFermer")}</button></div>
+    <div id="pf-msg">${msg}</div>
+    <div class="pfl">${PF.length ? PF.map(p => `<div><span><b>${esc(p.isin)}</b> ${esc(p.nom)}</span><span class="num">${fr(p.qte, 0)} × ${fr(p.prix)}</span></div>`).join("") : `<p class="h">${t("vide")}</p>`}</div>
+    <p class="h">${t("priv")}</p>`);
+  $("#pf-fermer").onclick = fermer;
+  $("#pf-vider").onclick = () => { PF = []; mem.set("pf", PF); panneauPF(); };
+  $("#pf-enr").onclick = () => {
+    ["capital", "lignes", "courtage", "obj"].forEach(k => { const v = parseFloat(String($("#r-" + k).value).replace(",", ".")); if (!isNaN(v) && v > 0) R[k] = v; });
+    const txt = $("#pf-txt").value; let m = "";
+    if (txt.trim()) { const pf = lirePortefeuille(txt); if (pf) { PF = pf; mem.set("pf", PF); m = `<p class="ok">${t("pfOk", PF.length)}</p>`; } else m = `<p class="ko">${t("pfKo")}</p>`; }
+    mem.set("reg", R); panneauPF(m);
+  };
+}
+function panneauOrdre() {
+  let sens = "achat";
+  ouvrir(`<h3>${t("ordTitre")}</h3><p class="h">${t("ordAide")}</p>
+    <label>${t("ordVal")}<input id="o-val" list="o-liste" autocomplete="off" placeholder="MNG, ATW, IAM…"></label>
+    <datalist id="o-liste">${V().map(f => `<option value="${esc(f.isin)}">${esc(f.nom)}</option>`).join("")}</datalist>
+    <div class="seg" role="group"><button type="button" class="on" data-s="achat">${t("achat")}</button><button type="button" data-s="vente">${t("vente")}</button></div>
+    <div class="row2">
+      <label>${t("prix")}<input id="o-prix" type="number" step="0.01" inputmode="decimal"></label>
+      <label>${t("qte")}<input id="o-qte" type="number" inputmode="numeric"></label>
+      <label>${t("obj")}<input id="o-obj" type="number" step="0.5" inputmode="decimal" value="${R.obj}"></label>
+      <label>${t("seuil")}<input id="o-seuil" type="number" step="0.5" inputmode="decimal" value="${R.seuil}"></label>
+    </div>
+    <p class="ko" id="o-err" hidden>${t("ordManque")}</p>
+    <div class="acts"><button class="btn p" id="o-go" type="button">${t("ordGo")}</button><button class="btn" id="o-fermer" type="button">${t("pfFermer")}</button></div>`);
+  $("#o-val").addEventListener("change", () => { const f = trouver($("#o-val").value); if (f && !$("#o-prix").value) $("#o-prix").value = f.cours; });
+  document.querySelectorAll(".seg button").forEach(b => b.onclick = () => { sens = b.dataset.s; document.querySelectorAll(".seg button").forEach(x => x.classList.toggle("on", x === b)); });
+  $("#o-fermer").onclick = fermer;
+  $("#o-go").onclick = () => {
+    const val = $("#o-val").value.trim(), prix = parseFloat(String($("#o-prix").value).replace(",", ".")), qte = parseInt($("#o-qte").value, 10);
+    if (!val || !(prix > 0) || !(qte > 0)) { $("#o-err").hidden = false; return; }
+    const f = trouver(val);
+    fermer();
+    demander(t("ordMsg", {sens, qte, val: f ? `${f.nom} (${f.isin})` : val, prix, obj: $("#o-obj").value || R.obj, seuil: $("#o-seuil").value || R.seuil}));
+  };
+}
+
+/* ---------- événements ---------- */
+$("#form").addEventListener("submit", e => { e.preventDefault(); const v = $("#saisie").value; $("#saisie").value = ""; taille(); demander(v); });
+const taille = () => { const s = $("#saisie"); s.style.height = "auto"; s.style.height = Math.min(140, s.scrollHeight) + "px"; };
+$("#saisie").addEventListener("input", taille);
+$("#saisie").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing && window.matchMedia("(hover: hover)").matches) { e.preventDefault(); $("#form").requestSubmit(); } });
+$("#chips").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.ordre) return panneauOrdre();
+  if (b.dataset.raz) { FIL = []; mem.set("fil", FIL); return rendre(); }
+  demander(b.textContent);
+});
+$("#b-lang").onclick = () => { LANG = LANG === "fr" ? "ar" : "fr"; mem.set("lang", LANG); rendre(); };
+$("#b-pf").onclick = () => panneauPF();
+$("#b-ordre").onclick = () => panneauOrdre();
+$("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") fermer(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") fermer(); });
+
+/* ---------- démarrage ---------- */
+rendre();
+fetch("conseiller.json", {cache: "no-store"}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { D = d; rendre(); }).catch(() => { DATA_ERR = true; rendre(); });
+(async () => {
+  for (let i = 0; i < 25 && !window.claude?.use; i++) await new Promise(r => setTimeout(r, 200));
+  try { sample = window.claude?.use ? await window.claude.use("sample") : null; } catch (e) { sample = null; }
+  if (!sample) { SAMPLE_OFF = t("errSample"); rendre(); }
+})();
+})();
+</script>
