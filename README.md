@@ -11,7 +11,7 @@ chacune et publie une page web que tu ouvres sur ton téléphone ou ton PC.
  ┌──────────────────────────────────────────┐
  │ 8h00 et 16h00, lundi → vendredi           │
  │  1. collecte   : cours des 79 valeurs     │
- │                  + indice MASI (Medias24) │
+ │                  (site officiel de la Bourse) │
  │  2. diagnostic : variations, 52 semaines, │      📱 téléphone
  │                  volumes, RSI, MM50/200,  │ ───▶ 💻 PC
  │                  signaux                  │      (même adresse web)

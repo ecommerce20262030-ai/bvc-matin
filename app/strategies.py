@@ -216,7 +216,7 @@ def profil_court_terme(df: pd.DataFrame) -> dict:
     """Ce qui compte pour l'achat-revente rapide : amplitude dans la séance et liquidité."""
     d = df.tail(60)
     amp = ((d["Haut"] - d["Bas"]) / d["Bas"]).replace([np.inf, -np.inf], np.nan).dropna()
-    capitaux = (d["Volume"].fillna(0) * d["Cloture"])
+    capitaux = d["Capitaux"].fillna(0) if "Capitaux" in d else (d["Volume"].fillna(0) * d["Cloture"])
     jours_actifs = (d["Volume"].fillna(0) > 0).mean() if len(d) else 0
     return {
         "amplitude_moy": round(float(amp.mean()) * 100, 2) if len(amp) else None,

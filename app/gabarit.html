@@ -796,7 +796,7 @@ function rendreAccueil() {
   }
   const tot = (M.nb_hausse + M.nb_baisse + M.nb_stable) || 1;
   $("#masi").innerHTML = `
-    <div><div class="sub">MASI</div><div class="val num">${fmt(M.masi)}</div></div>
+    <div><div class="sub">${t("indice.cap")}</div><div class="val num">${fmt(M.masi)}</div></div>
     <div style="text-align:end">${M.masi_var != null ? `<span class="pill ${cls(M.masi_var)}">${pct(M.masi_var)}</span>` : ""}
       <div class="sub num" style="margin-top:4px">${t("masi.ytd", {v: pct(M.masi_ytd)})}</div></div>
     <div class="breadth" dir="ltr"><i style="width:${M.nb_hausse / tot * 100}%;background:var(--up)"></i><i style="width:${M.nb_stable / tot * 100}%;background:var(--muted);opacity:.4"></i><i style="width:${M.nb_baisse / tot * 100}%;background:var(--down)"></i></div>

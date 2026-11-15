@@ -78,6 +78,9 @@ def diagnostiquer(nom: str, isin: str, df: pd.DataFrame, derniere_seance_marche,
     # --- Signaux factuels -------------------------------------------------
     s = []
     a_jour = derniere_seance_marche is None or c.index[-1] >= derniere_seance_marche
+    # La source officielle liste aussi les séances sans échange : on les traite comme « non échangée »
+    if a_jour and not pd.isna(v.iloc[-1]) and v.iloc[-1] <= 0:
+        a_jour = False
     jour = c.index[-1].strftime("%Y-%m-%d")
     for e in evenements:
         if e["date"] == jour:

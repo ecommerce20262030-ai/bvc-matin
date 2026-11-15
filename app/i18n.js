@@ -2,6 +2,7 @@
    {x} = valeur insérée. Les noms des sociétés restent ceux de la cote officielle. */
 const TEXTES = {
 fr: {
+  "indice.cap": "Capitalisation du marché (Mds MAD)",
   "idee.titre": "Idées du matin — ma stratégie",
   "pan.titre": "Mon panier du jour", "pan.repart": "capital {c} réparti sur {n} valeur(s) max, {l} chacune",
   "pan.engage": "Investi, frais inclus ({n} valeur(s))", "pan.reste": "Non investi", "pan.max": "Gain total si tous atteignent {o}",
@@ -140,11 +141,12 @@ fr: {
   "courbe.long": "Historique long disponible sur la version en ligne.",
   "pied.diag": "{n} valeurs diagnostiquées sur {t}.", "pied.indispo": "Non disponibles aujourd'hui : {l}.",
   "pied.excel": "Télécharger le diagnostic complet (Excel)",
-  "pied.avert": "Source des cours : Medias24. Données de marché, indicateurs et tests sur l'historique ; ni conseil en investissement ni recommandation personnalisée. Tes décisions restent les tiennes.",
+  "pied.avert": "Source des cours : Bourse de Casablanca (cours ajustés, différés). Données de marché, indicateurs et tests sur l'historique ; ni conseil en investissement ni recommandation personnalisée. Tes décisions restent les tiennes.",
   "fermer": "Fermer", "achat.sens": "achat", "vente.sens": "vente",
 },
 
 ar: {
+  "indice.cap": "رسملة السوق (مليار درهم)",
   "idee.titre": "أفكار الصباح — استراتيجيتي",
   "pan.titre": "سلّتي لهذا اليوم", "pan.repart": "رأس مال {c} موزَّع على {n} قيم كحد أقصى، {l} لكل واحدة",
   "pan.engage": "المستثمَر مع المصاريف ({n} قيم)", "pan.reste": "غير مستثمَر", "pan.max": "الربح الإجمالي إذا بلغت كلها {o}",
@@ -283,7 +285,7 @@ ar: {
   "courbe.long": "التاريخ الطويل متوفر في النسخة على الإنترنت.",
   "pied.diag": "تم تشخيص {n} قيمة من أصل {t}.", "pied.indispo": "غير متوفرة اليوم: {l}.",
   "pied.excel": "تحميل التشخيص الكامل (Excel)",
-  "pied.avert": "مصدر الأسعار: Medias24. معطيات السوق ومؤشرات واختبارات على التاريخ؛ ليست نصيحة استثمارية ولا توصية شخصية. قراراتك تبقى قراراتك.",
+  "pied.avert": "مصدر الأسعار: بورصة الدار البيضاء (أسعار معدَّلة ومؤجَّلة). معطيات السوق ومؤشرات واختبارات على التاريخ؛ ليست نصيحة استثمارية ولا توصية شخصية. قراراتك تبقى قراراتك.",
   "fermer": "إغلاق", "achat.sens": "شراء", "vente.sens": "بيع",
 },
 };

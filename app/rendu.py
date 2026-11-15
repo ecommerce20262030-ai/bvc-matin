@@ -59,7 +59,7 @@ def ecrire_page(diag: dict, dossier: Path, demo: bool = False) -> Path:
 
 
 COLONNES_EXCEL = {
-    "nom": "Valeur", "isin": "ISIN", "date": "Dernière séance", "cours": "Cours (MAD)",
+    "nom": "Valeur", "isin": "Symbole", "date": "Dernière séance", "cours": "Cours (MAD)",
     "var_jour": "Var. jour %", "var_5j": "Var. 5 j %", "var_1m": "Var. 1 mois %",
     "var_ytd": "Var. depuis 1er janv. %", "var_1a": "Var. 1 an %",
     "haut_52s": "Plus haut 52 sem.", "bas_52s": "Plus bas 52 sem.",
@@ -84,7 +84,7 @@ def ecrire_excel(diag: dict, chemin: Path) -> Path:
         df = df[list(COLONNES_EXCEL)].rename(columns=COLONNES_EXCEL).sort_values("Var. jour %")
     m = diag["marche"]
     resume = pd.DataFrame([
-        ("Séance", m["date_seance"]), ("MASI", m["masi"]), ("MASI var. jour %", m["masi_var"]),
+        ("Séance", m["date_seance"]), ("Capitalisation du marché (Mds MAD)", m["masi"]), ("Capitalisation var. jour %", m["masi_var"]),
         ("Valeurs en hausse", m["nb_hausse"]), ("Valeurs en baisse", m["nb_baisse"]),
         ("Valeurs stables", m["nb_stable"]),
         ("Valeurs diagnostiquées", f"{m['nb_diagnostiquees']} / {m['nb_valeurs']}"),
