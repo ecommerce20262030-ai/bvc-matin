@@ -1,48 +1,57 @@
-"""Sonde : quelles sources de cours répondent depuis les serveurs de GitHub ?"""
-import json, re, traceback
+"""Sonde n°2 : API officielle de la Bourse de Casablanca depuis GitHub."""
+import json, warnings
 import requests
+warnings.filterwarnings("ignore")
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+B = "https://www.casablanca-bourse.com"
+H = {"User-Agent": UA, "Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json",
+     "Referer": B + "/fr/live-market/marche-actions-listing"}
 
-UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
-
-def essai(nom, url, **kw):
+def essai(nom, url, params=None, n=2500, headers=H):
     try:
-        r = requests.get(url, timeout=30, **kw)
+        r = requests.get(url, params=params, headers=headers, timeout=40, verify=False)
         print(f"\n### {nom}: HTTP {r.status_code} {r.headers.get('content-type')} {len(r.content)} octets")
-        print(r.text[:600].replace("\n", " "))
+        print(r.text[:n].replace("\n", " "))
         return r
     except Exception as e:
         print(f"\n### {nom}: ERREUR {e}")
 
-# 1. Medias24 avec des en-têtes de navigateur
-essai("medias24 navigateur",
-      "https://medias24.com/content/api?method=getPriceHistory&ISIN=MA0000012445&format=json&from=2026-10-01&to=2026-11-14",
-      headers={"User-Agent": UA, "Accept": "application/json, text/plain, */*",
-               "Referer": "https://medias24.com/leboursier/", "Accept-Language": "fr-FR,fr;q=0.9"})
+r = essai("accueil", B + "/fr", n=300, headers={"User-Agent": UA})
+if r is not None:
+    print("__NEXT_DATA__ présent:", "__NEXT_DATA__" in r.text, "| buildId présent:", '"buildId"' in r.text)
 
-# 2. Site officiel de la Bourse : page d'accueil -> buildId
-r = essai("bourse accueil", "https://www.casablanca-bourse.com/fr", headers={"User-Agent": UA})
-build = None
+essai("market_watch", B + "/api/proxy/fr/api/bourse_data/market_watch", {"page[limit]": "3"})
+essai("ticker", B + "/api/proxy/fr/api/bourse/dashboard/ticker", n=1500)
+
+base = [
+    ("fields[instrument_history]", "symbol,created,openingPrice,coursCourant,highPrice,lowPrice,cumulTitresEchanges,cumulVolumeEchange,totalTrades,capitalisation,coursAjuste,closingPrice,ratioConsolide"),
+    ("fields[instrument]", "symbol,libelleFR,codeISIN"),
+    ("include", "symbol"),
+    ("sort[date-seance][path]", "created"), ("sort[date-seance][direction]", "DESC"),
+    ("filter[instrument-history-class][condition][path]", "symbol.codeClasse.field_code"),
+    ("filter[instrument-history-class][condition][value]", "1"),
+    ("filter[instrument-history-class][condition][operator]", "="),
+    ("filter[published]", "1"),
+    ("filter[d1][condition][path]", "field_seance_date"), ("filter[d1][condition][operator]", ">="),
+    ("filter[d1][condition][value]", "2026-11-10"),
+    ("filter[d2][condition][path]", "field_seance_date"), ("filter[d2][condition][operator]", "<="),
+    ("filter[d2][condition][value]", "2026-11-14"),
+]
+r = essai("historique toutes valeurs (5 jours)", B + "/api/proxy/fr/api/bourse_data/instrument_history",
+          base + [("page[offset]", "0"), ("page[limit]", "250")], n=3000)
 if r is not None and r.ok:
-    m = re.search(r'"buildId":"([^"]+)"', r.text)
-    build = m.group(1) if m else None
-    print("buildId =", build)
+    d = r.json()
+    print("\nNB lignes:", len(d.get("data", [])), "| inclus:", len(d.get("included", [])), "| liens:", list(d.get("links", {})))
+    if d.get("included"):
+        print("Exemple instrument inclus:", json.dumps(d["included"][0])[:800])
+    dates = sorted({x["attributes"].get("created", "")[:10] for x in d.get("data", [])})
+    print("Dates:", dates)
 
-H = {"User-Agent": UA, "Accept": "application/vnd.api+json", "Content-Type": "application/vnd.api+json",
-     "Referer": "https://www.casablanca-bourse.com/fr/live-market/marche-actions-listing"}
-if build:
-    r = essai("listing actions (_next)", f"https://www.casablanca-bourse.com/_next/data/{build}/fr/live-market/marche-actions-listing.json",
-              headers={"User-Agent": UA})
-    if r is not None and r.ok:
-        open("listing.json", "w").write(r.text)
-
-# 3. API historique d'un instrument (essai avec la bibliothèque casabourse)
-try:
-    import casabourse as cb
-    print("\n### casabourse fonctions:", [n for n in dir(cb) if not n.startswith("_")][:60])
-    df = cb.get_historical_data_auto("ATW", "2026-10-01", "2026-11-14")
-    print("\n### casabourse ATW:", type(df), getattr(df, "shape", None))
-    print(df.head(5).to_string() if hasattr(df, "head") else df)
-    print(df.tail(3).to_string() if hasattr(df, "tail") else "")
-except Exception:
-    traceback.print_exc()
+r = essai("historique par ISIN (ATW)", B + "/api/proxy/fr/api/bourse_data/instrument_history",
+          base[:9] + [("filter[isin][condition][path]", "symbol.codeISIN"), ("filter[isin][condition][operator]", "="),
+                      ("filter[isin][condition][value]", "MA0000012445"),
+                      ("filter[d1][condition][path]", "field_seance_date"), ("filter[d1][condition][operator]", ">="),
+                      ("filter[d1][condition][value]", "2011-01-01"),
+                      ("page[offset]", "0"), ("page[limit]", "250")], n=1500)
+if r is not None and r.ok:
+    d = r.json(); print("\nATW lignes:", len(d.get("data", [])), "| next:", "next" in d.get("links", {}))
