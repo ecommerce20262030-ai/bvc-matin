@@ -78,9 +78,10 @@ def ecrire_excel(diag: dict, chemin: Path) -> Path:
     df = pd.DataFrame(diag["valeurs"])
     if not df.empty:
         df["signaux"] = df["signaux"].apply(lambda l: " ; ".join(s["texte"] for s in l))
+        signe = lambda x: "—" if x is None else f"{x:+}"
         df["suggestions"] = df["suggestions"].apply(lambda l: " ; ".join(
-            f"{s['sens'].upper()} - {s['nom']} ({s['operations']} op., {s['taux_reussite']} % réussite, "
-            f"{s['gain_moyen']:+} % moyen{', validée' if s['fiable'] else ', non validée'})" for s in l))
+            f"{s['sens'].upper()} - {s['nom']} ({s['operations']} op., {s.get('taux_reussite') if s.get('taux_reussite') is not None else '—'} % réussite, "
+            f"{signe(s.get('gain_moyen'))} % moyen{', validée' if s['fiable'] else ', non validée'})" for s in (l or [])))
         df = df[list(COLONNES_EXCEL)].rename(columns=COLONNES_EXCEL).sort_values("Var. jour %")
     m = diag["marche"]
     resume = pd.DataFrame([
