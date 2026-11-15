@@ -97,7 +97,12 @@ Les signaux décrivent des faits (« forte baisse », « volume ×3 la moyenne �
 
 Acheter une valeur **liquide** proche de son **plus bas** et la revendre à **+X %**.
 Réglages (onglet Suggestions) : objectif de revente (+1 à +5 %), seuil de sortie (-2, -3 ou -5 %),
-durée maximum (dans la journée, 3, 5 ou 10 séances) et montant par opération.
+durée maximum (dans la journée, 3, 5 ou 10 séances), **capital total à investir** (50 000 MAD
+par défaut) et **nombre maximum de valeurs** entre lesquelles il est réparti à parts égales.
+
+- **Mon panier du jour** : montant investi, non investi, gain total si tous les objectifs sont
+  atteints, gain probable (pondéré par ce qui s'est réellement passé sur 3 ans), perte si tous les
+  seuils de sortie sont touchés, délai médian. Montants nets de frais, avant impôt.
 
 - **Zone d'achat** : capitaux échangés ≥ 300 000 MAD/jour (moyenne 3 mois) ET cours à moins de
   10 % du plus bas sur 52 semaines OU baisse d'au moins 5 % en 5 séances.

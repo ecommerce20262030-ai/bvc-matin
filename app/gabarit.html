@@ -261,7 +261,7 @@ const motif = r => r.motif_i18n ? t("motif." + r.motif_i18n.code, {...r.motif_i1
 const texteSignal = s => s.code ? t("sig." + s.code, {v: s.code === "forte_baisse" || s.code === "forte_hausse" ? pct(s.v) :
   s.code === "dividende" ? pct(-s.v) : s.code.startsWith("rsi") ? fmt(s.v, 0) : fmt(s.v, 1)}) : s.texte;
 
-let R = Object.assign({courtage: 0.6, taxe: 0.1, stop: -7, objectif: 10, capital: 100000, risque: 1, obj: 2, seuil: 3, duree: 5, montant: 50000}, store.get("reglages", {}));
+let R = Object.assign({courtage: 0.6, taxe: 0.1, stop: -7, objectif: 10, capital: 50000, risque: 1, obj: 2, seuil: 3, duree: 5, lignes: 5}, store.get("reglages", {}));
 let PF = store.get("portefeuille", []);
 let SIM = store.get("simulation", null) || {capital: 1000000, cash: 1000000, positions: {}, journal: []};
 const sauver = () => { store.set("reglages", R); store.set("portefeuille", PF); store.set("simulation", SIM); };
@@ -543,14 +543,47 @@ function statsGrille(f, o = R.obj, s = R.seuil, d = R.duree) {
   const ev = (ga * net(o) + so * net(-s) + ech * net(moy)) / ex;
   return {ex, ordres, pg: ga / ex * 100, ps: so / ex * 100, pe: ech / ex * 100, med, ev, servi: ordres ? ex / ordres * 100 : null};
 }
-function planStrat(f, o = R.obj, s = R.seuil) {
+// Le capital total est réparti à parts égales sur au plus R.lignes valeurs.
+const ligneMAD = () => R.capital / Math.max(1, R.lignes);
+function planStrat(f, o = R.obj, s = R.seuil, montant = ligneMAD()) {
   const prix = f.cours, cible = prix * (1 + o / 100), stop = prix * (1 - s / 100);
-  let q = Math.floor(R.montant / (prix + frais(prix, "achat"))), limite = false;
+  let q = Math.floor(montant / (prix + frais(prix, "achat"))), limite = false;
   const lim = f.capitaux_moy ? f.capitaux_moy * 0.10 : null;      // ≤ 10 % des capitaux échangés par jour
   if (lim && q * prix > lim) { q = Math.floor(lim / prix); limite = true; }
   const cout = q * prix + frais(q * prix, "achat");
-  return {prix, cible, stop, q, montant: q * prix, limite,
+  return {prix, cible, stop, q, montant: q * prix, cout, limite,
     gain: q * cible - frais(q * cible, "vente") - cout, perte: q * stop - frais(q * stop, "vente") - cout};
+}
+/* Le panier du matin : les meilleures idées (résultat net moyen positif), une ligne chacune. */
+function panier() {
+  const choisies = IDEES().filter(x => x.st.ev > 0).slice(0, Math.max(1, R.lignes));
+  const lignes = choisies.map(x => ({...x, p: planStrat(x.f)}));
+  const achetables = lignes.filter(l => l.p.q > 0);
+  const somme = k => achetables.reduce((a, l) => a + l.p[k], 0);
+  const engage = somme("cout");
+  const attendu = achetables.reduce((a, l) => a + l.p.cout * l.st.ev / 100, 0);
+  const delais = achetables.map(l => l.st.med).filter(x => x != null).sort((a, b) => a - b);
+  return {lignes, nb: achetables.length, tropChers: lignes.length - achetables.length, engage,
+    reste: R.capital - engage, gainMax: somme("gain"), perteMax: somme("perte"), attendu,
+    delai: delais.length ? delais[Math.floor(delais.length / 2)] : null};
+}
+function htmlPanier() {
+  const P = panier();
+  if (!P.lignes.length) return "";
+  const pcCap = x => pct(R.capital ? x / R.capital * 100 : null);
+  const k = (lab, val, c = "", sub = "") => `<div class="kpi"><span>${lab}</span><b class="num ${c}">${val}</b>${sub ? `<span class="num">${sub}</span>` : ""}</div>`;
+  return `<div class="plan" style="margin-bottom:6px">
+    <b>${t("pan.titre")}</b> · ${t("pan.repart", {c: mad(R.capital, 0), n: R.lignes, l: mad(ligneMAD(), 0)})}
+    <div class="kpis" style="margin-top:8px">
+      ${k(t("pan.engage", {n: P.nb}), mad(P.engage, 0))}
+      ${k(t("pan.reste"), mad(P.reste, 0))}
+      ${k(t("pan.max", {o: pct(R.obj)}), (P.gainMax >= 0 ? "+" : "") + mad(P.gainMax, 0), cls(P.gainMax), pcCap(P.gainMax))}
+      ${k(t("pan.attendu"), (P.attendu >= 0 ? "+" : "") + mad(P.attendu, 0), cls(P.attendu), pcCap(P.attendu))}
+      ${k(t("pan.pire", {s: pct(-R.seuil)}), mad(P.perteMax, 0), cls(P.perteMax), pcCap(P.perteMax))}
+      ${k(t("pan.delai"), P.delai == null ? "—" : t("strat.n", {n: fmt(P.delai, 0)}))}
+    </div>
+    ${P.tropChers ? `<div class="sub" style="margin-top:6px">${t("pan.chers", {n: P.tropChers, l: mad(ligneMAD(), 0)})}</div>` : ""}
+    <div class="sub" style="margin-top:6px">${t("pan.note")}</div></div>`;
 }
 const IDEES = () => V.filter(f => f.strategie?.zone).map(f => ({f, st: statsGrille(f)}))
   .filter(x => x.st && x.st.ex >= 10).sort((a, b) => b.st.ev - a.st.ev);
@@ -561,7 +594,7 @@ function ligneIdee(x) {
     <div><div class="n">${esc(f.nom)}</div>
       <div class="meta num">${t("idee.ordre", {p: fmt(p.prix), c: fmt(p.cible), o: pct(R.obj)})}</div>
       <div class="meta num">${t("idee.stats", {g: pc(st.pg, 0), d: st.med == null ? "—" : fmt(st.med, 0)})}</div>
-      ${p.q > 0 ? `<div class="meta num">${t("idee.mad", {q: fmt(p.q, 0), g: mad(p.gain, 0)})}</div>` : ""}</div>
+      <div class="meta num">${p.q > 0 ? t("idee.mad", {q: fmt(p.q, 0), m: mad(p.montant, 0), g: mad(p.gain, 0)}) : t("idee.cher", {l: mad(ligneMAD(), 0)})}</div></div>
     ${spark(f.historique.slice(-60))}
     <div class="px num"><span class="pill ${cls(st.ev)}" title="${t("idee.ev")}">${pct(st.ev)}</span></div></div>`;
 }
@@ -573,15 +606,18 @@ function rendreStrategie() {
       <div><label>${t("strat.obj")}</label>${choix("s-obj", OBJ, R.obj, x => iso("+" + brut(x, x % 1 ? 1 : 0) + " %"))}</div>
       <div><label>${t("strat.seuil")}</label>${choix("s-seuil", SEU, R.seuil, x => iso("-" + x + " %"))}</div>
       <div><label>${t("strat.duree")}</label>${choix("s-duree", DUR, R.duree, x => x === 1 ? t("strat.jour") : t("strat.n", {n: x}))}</div>
-      <div><label>${t("strat.montant")}</label><input id="s-montant" type="number" step="1000" inputmode="numeric" value="${R.montant}"></div>
+      <div><label>${t("strat.capital")}</label><input id="s-capital" type="number" step="1000" inputmode="numeric" value="${R.capital}"></div>
+      <div><label>${t("strat.lignes")}</label>${choix("s-lignes", [1, 2, 3, 4, 5, 6, 8, 10], R.lignes, x => t("strat.lignes.x", {n: x}))}</div>
+      <div><label>&nbsp;</label><div class="sub num" style="padding-top:10px">${t("strat.parligne", {l: mad(ligneMAD(), 0)})}</div></div>
     </div>
+    <div style="margin-top:10px">${htmlPanier()}</div>
     <div class="sub" style="margin-top:8px">${t("strat.frais", {f: pc((tauxFrais().fa + tauxFrais().fv) * 100), n: pct(net(R.obj))})}</div>
     <div class="sub" style="margin-top:6px">${t("strat.regles")}</div>
     <h2 style="margin-top:14px">${t("strat.liste", {n: idees.length})}<small>${t("strat.tri")}</small></h2>
     ${idees.length ? idees.map(ligneIdee).join("") : `<div class="empty">${t("strat.vide")}</div>`}
     ${idees.length && !bonnes.length ? `<div class="sub" style="color:var(--warn);margin-top:6px">${t("strat.aucune.pos")}</div>` : ""}`;
-  ["obj", "seuil", "duree"].forEach(k => $("#s-" + k).onchange = e => { R[k] = +e.target.value; sauver(); rendreStrategie(); rendreAccueil(); });
-  $("#s-montant").onchange = e => { const v = +e.target.value; if (v > 0) { R.montant = v; sauver(); rendreStrategie(); rendreAccueil(); } };
+  ["obj", "seuil", "duree", "lignes"].forEach(k => $("#s-" + k).onchange = e => { R[k] = +e.target.value; sauver(); rendreStrategie(); rendreAccueil(); });
+  $("#s-capital").onchange = e => { const v = +String(e.target.value).replace(",", "."); if (v > 0) { R.capital = v; sauver(); rendreStrategie(); rendreAccueil(); rendrePortefeuille(); rendreSuggestions(); } };
 }
 
 /* Simulateur : rejoue l'historique d'une valeur avec les règles d'un vrai carnet d'ordres. */
@@ -623,7 +659,7 @@ function htmlSimulation(r, o) {
   const nets = ops.map(x => x.net), moy = nets.reduce((a, x) => a + x, 0) / N;
   const delais = ops.filter(x => x.delai).map(x => x.delai).sort((a, b) => a - b);
   const med = delais.length ? delais[Math.floor(delais.length / 2)] : null;
-  const gainMad = R.montant * moy / 100;
+  const gainMad = ligneMAD() * moy / 100;
   const k = (lab, val, c = "") => `<div><span>${lab}</span><b class="${c}">${val}</b></div>`;
   return `<div class="stats num">
       ${k(t("sim2.ops"), fmt(N, 0))}${k(t("sim2.obj"), pc(nb("objectif") / N * 100, 0))}
@@ -770,10 +806,10 @@ function rendreAccueil() {
   const parVar = [...actives].sort((a, b) => a.var_jour - b.var_jour);
   const validees = TOUTES_SUGG.filter(s => s.fiable && s.sens === "achat").slice(0, 4);
   const bc = D.bilan_reconstitue?.achats_clos;
-  const idees = IDEES().filter(x => x.st.ev > 0).slice(0, 6);
+  const idees = IDEES().filter(x => x.st.ev > 0).slice(0, Math.max(1, R.lignes));
   $("#resume").innerHTML =
     `<div class="card"><h2>${t("idee.titre")}<small>${t("idee.reglage", {o: pct(R.obj), s: pct(-R.seuil), d: R.duree === 1 ? t("strat.jour") : t("strat.n", {n: R.duree})})}</small></h2>
-      ${idees.length ? idees.map(ligneIdee).join("") : `<div class="empty">${t("idee.vide")}</div>`}
+      ${idees.length ? htmlPanier() + idees.map(ligneIdee).join("") : `<div class="empty">${t("idee.vide")}</div>`}
       <div class="btns"><button class="btn" data-goto="suggestions">${t("idee.regler")}</button></div></div>` +
     bloc(t("bloc.baisses"), t("bloc.seance"), parVar.filter(f => f.var_jour < 0).slice(0, 8)) +
     `<div class="card"><h2>${t("acc.sugg")}<small>${t("acc.sugg.note")}</small></h2>${validees.length
