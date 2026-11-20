@@ -1,5 +1,5 @@
 {
- "date": "2026-11-19T22:37+00:00",
+ "date": "2026-11-20T15:55+00:00",
  "etapes": {
   "accueil": {
    "ok": true,
@@ -23,7 +23,7 @@
   },
   "ia_strategie": {
    "ok": true,
-   "extrait": "Votre méthode : revente à +2 %, sortie à -3 %, au plus 5 séances. Résultats sur ~3 ans, frais inclus :\n\n30 valeur(s) liquide(s) sont en zone d'achat aujourd'hui ; 0 ont un résultat net moyen positif. Moyenne : -1,70 % par opération.\nSur l'ensemble des 41 valeurs liquides testées : 0 positives, moyenne -1,78 % par opération.\n\nMeilleurs historiques parmi la zone d'achat :\n\nSOTHEMA : -0,65 % (11 op., 73 %)\nBANK OF AFRICA : -1,09 % (37 op., 59 %)\nTOTALENERGIES MARKETING MAROC : -1,12 % (42 op., 60 %)\n\nFrais aller-retour ≈ 1,55 % : il faut au moins +1,55 % de hausse pour ne rien perdre.\n\nConclusion"
+   "extrait": "Votre méthode : revente à +2 %, sortie à -3 %, au plus 5 séances. Résultats sur ~3 ans, frais inclus :\n\n30 valeur(s) liquide(s) sont en zone d'achat aujourd'hui ; 0 ont un résultat net moyen positif. Moyenne : -1,68 % par opération.\nSur l'ensemble des 41 valeurs liquides testées : 0 positives, moyenne -1,77 % par opération.\n\nMeilleurs historiques parmi la zone d'achat :\n\nSOTHEMA : -0,65 % (11 op., 73 %)\nBANK OF AFRICA : -1,09 % (37 op., 59 %)\nTOTALENERGIES MARKETING MAROC : -1,12 % (42 op., 60 %)\n\nFrais aller-retour ≈ 1,55 % : il faut au moins +1,55 % de hausse pour ne rien perdre.\n\nConclusion"
   },
   "ia_baisses": {
    "ok": true,
