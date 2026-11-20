@@ -1,21 +1,21 @@
 {
- "date": "2026-11-20T15:55+00:00",
+ "date": "2026-11-20T22:09+00:00",
  "etapes": {
   "accueil": {
    "ok": true,
-   "extrait": "séance 2026-11-19 · demo=false · 78/81 valeurs · 5 propositions"
+   "extrait": "séance 2026-11-20 · demo=false · 78/81 valeurs · 5 propositions"
   },
   "fiche": {
    "ok": true,
-   "extrait": "BVC Matin\nSéance du jeudi 19 novembre 2026\nع\n📲 Installer BVC Matin sur ce téléphone\nL'application s'ouvrira en plein écran depuis son icône, comme une application normale.\nOuvre cette page dans Chrome\nTouche le menu ⋮ en haut à droite\nTouche « Installer l'application » ou « Ajouter à l'écran d'accueil », puis confirme\nPlus tard\nCapitalisation · Mds MAD\n984,10\n-1,74 %\nDepuis le 1er janv. -5,29 %\n▲ 14 en hausse\n■ 6 stables\n▼ 45 en baisse\nPropositions du jour\nModifier\nRevente à +2,00 % · sortie à -3,00 % · 5 séances · 10 000 MAD par valeur\nAucune valeur n'est favorable aujourd'hui avec vos réglag"
+   "extrait": "BVC Matin\nSéance du vendredi 20 novembre 2026\nع\n📲 Installer BVC Matin sur ce téléphone\nL'application s'ouvrira en plein écran depuis son icône, comme une application normale.\nOuvre cette page dans Chrome\nTouche le menu ⋮ en haut à droite\nTouche « Installer l'application » ou « Ajouter à l'écran d'accueil », puis confirme\nPlus tard\nCapitalisation · Mds MAD\n978,03\n-0,62 %\nDepuis le 1er janv. -5,87 %\n▲ 24 en hausse\n■ 11 stables\n▼ 32 en baisse\nPropositions du jour\nModifier\nRevente à +2,00 % · sortie à -3,00 % · 5 séances · 10 000 MAD par valeur\nAucune valeur n'est favorable aujourd'hui avec vos ré"
   },
   "ia_analyser_valeur": {
    "ok": true,
-   "extrait": "SOTHEMA (SOT) : cours 319,00 MAD (-0,16 % sur la séance, -2,65 % sur 5 séances, -9,84 % sur 1 an).\n\nPlus haut / plus bas 52 sem. : 395,00 / 291,00 (à +9,62 % du plus bas)\nRSI 14 : 49 ; moyenne 50 j : 328,61 ; moyenne 200 j : 349,89\nLiquidité : 1 009 070 MAD échangés par jour en moyenne (liquide)\nDans la zone d'achat de votre méthode aujourd'hui.\nVotre méthode sur cette valeur (~3 ans) : 11 opérations, objectif atteint 73 %, net moyen -0,65 %\nCalcul de l'application · sans IA"
+   "extrait": "SOTHEMA (SOT) : cours 315,00 MAD (-1,25 % sur la séance, -2,78 % sur 5 séances, -11,62 % sur 1 an).\n\nPlus haut / plus bas 52 sem. : 395,00 / 291,00 (à +8,25 % du plus bas)\nRSI 14 : 46 ; moyenne 50 j : 327,72 ; moyenne 200 j : 349,61\nLiquidité : 1 037 940 MAD échangés par jour en moyenne (liquide)\nDans la zone d'achat de votre méthode aujourd'hui.\nVotre méthode sur cette valeur (~3 ans) : 11 opérations, objectif atteint 73 %, net moyen -0,90 %\nCalcul de l'application · sans IA"
   },
   "ia_resume_marche": {
    "ok": true,
-   "extrait": "Séance du 19/11/2026\n\n14 valeurs en hausse, 45 en baisse, 6 stables.\n\nCapitalisation totale : 984,10 Mds MAD (-1,74 % sur la séance).\n\nPlus fortes baisses (valeurs liquides) :\n\nMANAGEM : -7,03 %\nMINIERE TOUISSIT : -4,61 %\nHPS : -4,55 %\nWAFA ASSURANCE : -4,48 %\nSMI : -3,52 %\n\nPlus fortes hausses (valeurs liquides) :\n\nSNEP : +2,42 %\nCDM : +1,73 %\nHOLCIM MAROC : +1,62 %\nSONASID : +1,47 %\nVICENNE : +1,45 %\n\nZone d'achat de votre méthode : 31 valeur(s) liquide(s), dont 0 avec un résultat net moyen positif sur ~3 ans.\n\nCalcul de l'application · sans IA"
+   "extrait": "Séance du 20/11/2026\n\n24 valeurs en hausse, 32 en baisse, 11 stables.\n\nCapitalisation totale : 978,03 Mds MAD (-0,62 % sur la séance).\n\nPlus fortes baisses (valeurs liquides) :\n\nSMI : -6,52 %\nMANAGEM : -5,51 %\nBMCI : -3,20 %\nSNEP : -3,16 %\nJET CONTRACTORS : -3,14 %\n\nPlus fortes hausses (valeurs liquides) :\n\nWAFA ASSURANCE : +5,65 %\nAFRIQUIA GAZ : +2,83 %\nCIMENTS DU MAROC : +2,05 %\nCOSUMAR : +1,69 %\nSODEP MARSA MAROC : +1,67 %\n\nZone d'achat de votre méthode : 28 valeur(s) liquide(s), dont 0 avec un résultat net moyen positif sur ~3 ans.\n\nCalcul de l'application · sans IA"
   },
   "ia_portefeuille": {
    "ok": true,
@@ -23,19 +23,19 @@
   },
   "ia_strategie": {
    "ok": true,
-   "extrait": "Votre méthode : revente à +2 %, sortie à -3 %, au plus 5 séances. Résultats sur ~3 ans, frais inclus :\n\n30 valeur(s) liquide(s) sont en zone d'achat aujourd'hui ; 0 ont un résultat net moyen positif. Moyenne : -1,68 % par opération.\nSur l'ensemble des 41 valeurs liquides testées : 0 positives, moyenne -1,77 % par opération.\n\nMeilleurs historiques parmi la zone d'achat :\n\nSOTHEMA : -0,65 % (11 op., 73 %)\nBANK OF AFRICA : -1,09 % (37 op., 59 %)\nTOTALENERGIES MARKETING MAROC : -1,12 % (42 op., 60 %)\n\nFrais aller-retour ≈ 1,55 % : il faut au moins +1,55 % de hausse pour ne rien perdre.\n\nConclusion"
+   "extrait": "Votre méthode : revente à +2 %, sortie à -3 %, au plus 5 séances. Résultats sur ~3 ans, frais inclus :\n\n27 valeur(s) liquide(s) sont en zone d'achat aujourd'hui ; 0 ont un résultat net moyen positif. Moyenne : -1,74 % par opération.\nSur l'ensemble des 41 valeurs liquides testées : 0 positives, moyenne -1,76 % par opération.\n\nMeilleurs historiques parmi la zone d'achat :\n\nSOTHEMA : -0,90 % (11 op., 73 %)\nTOTALENERGIES MARKETING MAROC : -1,12 % (42 op., 60 %)\nBANK OF AFRICA : -1,14 % (38 op., 58 %)\n\nFrais aller-retour ≈ 1,55 % : il faut au moins +1,55 % de hausse pour ne rien perdre.\n\nConclusion"
   },
   "ia_baisses": {
    "ok": true,
-   "extrait": "Plus fortes baisses de la séance (valeurs liquides) :\n\nMANAGEM : -7,03 %, cours 1 270,00, à +117,58 % de son plus bas 52 sem., RSI 28\nMINIERE TOUISSIT : -4,61 %, cours 3 350,00, à +113,38 % de son plus bas 52 sem., RSI 34\nHPS : -4,55 %, cours 525,00, à +8,25 % de son plus bas 52 sem., RSI 41\nWAFA ASSURANCE : -4,48 %, cours 5 206,00, à +14,22 % de son plus bas 52 sem., RSI 49\nSMI : -3,52 %, cours 4 600,00, à +76,92 % de son plus bas 52 sem., RSI 20\nTAQA MOROCCO : -3,47 %, cours 1 670,00, à +5,70 % de son plus bas 52 sem., RSI 48\nCMGP GROUP : -2,66 %, cours 274,50, à +9,80 % de son plus bas 52 s"
+   "extrait": "Plus fortes baisses de la séance (valeurs liquides) :\n\nSMI : -6,52 %, cours 4 300,00, à +65,38 % de son plus bas 52 sem., RSI 16\nMANAGEM : -5,51 %, cours 1 200,00, à +105,59 % de son plus bas 52 sem., RSI 24\nBMCI : -3,20 %, cours 542,00, à +4,23 % de son plus bas 52 sem., RSI 41\nSNEP : -3,16 %, cours 244,00, à 0,00 % de son plus bas 52 sem., RSI 30\nJET CONTRACTORS : -3,14 %, cours 1 510,00, à +7,86 % de son plus bas 52 sem., RSI 45\nLABEL VIE : -2,63 %, cours 3 700,00, à +2,78 % de son plus bas 52 sem., RSI 35\nDISTY TECHNOLOGIES : -2,02 %, cours 340,00, à +13,33 % de son plus bas 52 sem., RSI 4"
   },
   "ia_verifier_ordre": {
    "ok": true,
-   "extrait": "Achat de 5 AFMA à 1 270,00 MAD (montant 6 350 MAD)\n\nÉcart avec le dernier cours (1 270,00 MAD) : 0,00 %\nFrais d'achat : 45,72 MAD ; coût total : 6 396 MAD\nRevente minimum sans perte : 1 289,72 MAD (+1,55 %)\nÀ l'objectif (+2 %, 1 295,40 MAD) : gain net 28 MAD\nÀ la sortie (-3 %, 1 231,90 MAD) : perte nette -287 MAD\nPoids dans votre capital : 12,8 % (prévu par ligne : 10 000 MAD)\n\nPoints d'attention :\n\nValeur non échangée à la dernière séance : le cours affiché peut être ancien.\nValeur peu liquide : acheter et revendre au prix voulu peut être difficile.\nL'ordre pèse 58 % des capitaux échangés par"
+   "extrait": "Achat de 5 AFMA à 1 270,00 MAD (montant 6 350 MAD)\n\nÉcart avec le dernier cours (1 270,00 MAD) : 0,00 %\nFrais d'achat : 45,72 MAD ; coût total : 6 396 MAD\nRevente minimum sans perte : 1 289,72 MAD (+1,55 %)\nÀ l'objectif (+2 %, 1 295,40 MAD) : gain net 28 MAD\nÀ la sortie (-3 %, 1 231,90 MAD) : perte nette -287 MAD\nPoids dans votre capital : 12,8 % (prévu par ligne : 10 000 MAD)\n\nPoints d'attention :\n\nValeur non échangée à la dernière séance : le cours affiché peut être ancien.\nValeur peu liquide : acheter et revendre au prix voulu peut être difficile.\nL'ordre pèse 61 % des capitaux échangés par"
   },
   "ia_arabe": {
    "ok": true,
-   "extrait": "حصة 19/11/2026\n\n14 سهم في ارتفاع، 45 في انخفاض، 6 مستقر.\n\nالرسملة الإجمالية: 984,10 مليار درهم (-1,74 % في الحصة).\n\nأكبر الانخفاضات (أسهم سائلة):\n\nMANAGEM : -7,03 %\nMINIERE TOUISSIT : -4,61 %\nHPS : -4,55 %\nWAFA ASSURANCE : -4,48 %\nSMI : -3,52 %\n\nأكبر الارتفاعات (أسهم سائلة):\n\nSNEP : +2,42 %\nCDM : +1,73 %\nHOLCIM MAROC : +1,62 %\nSONASID : +1,47 %\nVICENNE : +1,45 %\n\nمنطقة الشراء حسب طريقتك: 31 سهم سائل، منها 0 بنتيجة صافية متوسطة إيجابية على ~3 سنوات.\n\nحساب التطبيق · بدون ذكاء اصطناعي"
+   "extrait": "حصة 20/11/2026\n\n24 سهم في ارتفاع، 32 في انخفاض، 11 مستقر.\n\nالرسملة الإجمالية: 978,03 مليار درهم (-0,62 % في الحصة).\n\nأكبر الانخفاضات (أسهم سائلة):\n\nSMI : -6,52 %\nMANAGEM : -5,51 %\nBMCI : -3,20 %\nSNEP : -3,16 %\nJET CONTRACTORS : -3,14 %\n\nأكبر الارتفاعات (أسهم سائلة):\n\nWAFA ASSURANCE : +5,65 %\nAFRIQUIA GAZ : +2,83 %\nCIMENTS DU MAROC : +2,05 %\nCOSUMAR : +1,69 %\nSODEP MARSA MAROC : +1,67 %\n\nمنطقة الشراء حسب طريقتك: 28 سهم سائل، منها 0 بنتيجة صافية متوسطة إيجابية على ~3 سنوات.\n\nحساب التطبيق · بدون ذكاء اصطناعي"
   }
  },
  "erreurs_page": [],
